@@ -1,0 +1,262 @@
+version: 2
+
+models:
+
+  - name: dim_customers
+    description: >
+      Customer dimension table. One row per customer with full profile
+      including demographics, acquisition, loyalty, geography and status.
+      Primary dimension for all fact joins.
+    columns:
+      - name: customer_sk
+        description: "Surrogate key — MD5 hash of customer_id"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Natural key from source CRM system"
+        tests:
+          - unique
+          - not_null
+      - name: email
+        tests:
+          - unique
+          - not_null
+      - name: loyalty_tier
+        tests:
+          - accepted_values:
+              values: ['bronze', 'silver', 'gold', 'platinum']
+      - name: tenure_band
+        tests:
+          - accepted_values:
+              values: ['new', 'developing', 'established', 'loyal']
+      - name: age_band
+        tests:
+          - accepted_values:
+              values: ['Gen Z (18-24)', 'Millennial (25-34)',
+                       'Xennial (35-44)', 'Gen X (45-54)',
+                       'Boomer+ (55+)']
+              severity: warn
+      - name: is_active
+        tests:
+          - not_null
+      - name: loyalty_tier_rank
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4]
+
+  - name: fct_orders
+    description: >
+      Order fact table. One row per order with financial metrics
+      and behavioral flags. Joins to dim_customers via customer_sk.
+    columns:
+      - name: order_sk
+        description: "Surrogate key — MD5 hash of order_id"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+              severity: warn
+      - name: order_date
+        tests:
+          - not_null
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['pending', 'confirmed', 'shipped',
+                       'delivered', 'cancelled', 'returned']
+      - name: total_amount
+        tests:
+          - not_null
+      - name: net_revenue
+        tests:
+          - not_null
+      - name: channel
+        tests:
+          - accepted_values:
+              values: ['web', 'mobile_app', 'in_store']
+              severity: warn
+      - name: is_cancelled_or_returned
+        tests:
+          - not_null
+      - name: is_discounted
+        tests:
+          - not_null
+
+  - name: fct_transactions
+    description: >
+      Payment transaction fact table. One row per transaction.
+      Contains fraud-relevant device, geography and payment signals.
+      Joins to dim_customers via customer_sk.
+    columns:
+      - name: transaction_sk
+        description: "Surrogate key — MD5 hash of transaction_id"
+        tests:
+          - unique
+          - not_null
+      - name: transaction_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+              severity: warn
+      - name: transaction_date
+        tests:
+          - not_null
+      - name: amount
+        tests:
+          - not_null
+      - name: payment_status
+        tests:
+          - accepted_values:
+              values: ['authorized', 'failed', 'refunded',
+                       'chargeback', 'pending']
+      - name: is_failed
+        tests:
+          - not_null
+      - name: is_chargeback
+        tests:
+          - not_null
+      - name: is_night_transaction
+        tests:
+          - not_null
+      - name: is_high_value
+        tests:
+          - not_null
+      - name: device_type
+        tests:
+          - accepted_values:
+              values: ['mobile', 'desktop', 'tablet']
+              severity: warn
+
+  - name: fct_campaigns
+    description: >
+      Marketing campaign response fact table. One row per campaign
+      response. Contains engagement timestamps, flags and response
+      speed metrics. Joins to dim_customers via customer_sk.
+    columns:
+      - name: campaign_response_sk
+        description: "Surrogate key — MD5 hash of campaign_response_id"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_response_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+              severity: warn
+      - name: sent_at
+        tests:
+          - not_null
+      - name: campaign_type
+        tests:
+          - accepted_values:
+              values: ['email', 'push', 'sms',
+                       'display', 'paid_social']
+      - name: engagement_level
+        tests:
+          - accepted_values:
+              values: ['converted', 'clicked', 'opened',
+                       'unsubscribed', 'sent_only']
+      - name: is_opened
+        tests:
+          - not_null
+      - name: is_clicked
+        tests:
+          - not_null
+      - name: is_converted
+        tests:
+          - not_null
+
+  - name: fct_customer_value
+    description: >
+      Customer 360 unified profile. One row per customer combining
+      RFM metrics, digital behavior, product affinity, campaign
+      engagement, payment signals, fraud flags and three composite
+      scores. Primary input for ML feature tables and BI dashboards.
+      Grain: 1 row per customer_id.
+      Refresh: Daily at 04:00 UTC.
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_sk
+        tests:
+          - unique
+          - not_null
+      - name: customer_value_score
+        description: >
+          Composite 0-100 score.
+          Recency 25pts + Frequency 25pts +
+          Monetary 30pts + Engagement 20pts.
+        tests:
+          - not_null
+      - name: churn_risk_score
+        description: >
+          Composite 0-100 score.
+          Higher score means higher churn risk.
+        tests:
+          - not_null
+      - name: personalization_score
+        description: >
+          Composite 0-100 score.
+          Measures how much behavioral data
+          we have to personalize for this customer.
+        tests:
+          - not_null
+      - name: risk_tier
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW', 'NORMAL']
+      - name: fraud_signal_count
+        description: "Count of triggered fraud flags — 0 to 7"
+        tests:
+          - not_null
+      - name: recency_days
+        tests:
+          - not_null
+      - name: total_orders
+        tests:
+          - not_null
+      - name: total_revenue
+        tests:
+          - not_null
+      - name: discount_ratio
+        tests:
+          - not_null
+      - name: failed_txn_rate
+        tests:
+          - not_null
+      - name: cart_abandon_rate
+        tests:
+          - not_null
+      - name: email_open_rate
+        tests:
+          - not_null
+      - name: email_click_rate
+        tests:
+          - not_null

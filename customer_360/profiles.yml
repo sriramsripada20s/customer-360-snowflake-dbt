@@ -1,0 +1,10 @@
+customer_360:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      role: ACCOUNTADMIN
+      warehouse: COMPUTE_WH
+      database: CUSTOMER_PLATFORM
+      schema: RAW
+      threads: 8

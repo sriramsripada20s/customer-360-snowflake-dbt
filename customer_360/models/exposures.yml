@@ -1,0 +1,115 @@
+version: 2
+
+exposures:
+
+  - name: customer_segmentation_dashboard
+    label: Customer Segmentation Dashboard
+    type: dashboard
+    maturity: high
+    url: "https://your-bi-tool/dashboards/customer-segmentation"
+    description: >
+      Power BI / Sigma dashboard showing segment distribution,
+      segment profiles, RFM heatmaps and customer value score
+      distributions. Used by Marketing and CRM teams for
+      campaign planning and budget allocation.
+    owner:
+      name: Analytics Engineering
+      email: analytics@company.com
+    depends_on:
+      - ref('fct_customer_value')
+      - ref('dim_customers')
+      - ref('feat_customer_segmentation')
+
+  - name: fraud_risk_dashboard
+    label: Fraud and Risk Monitoring Dashboard
+    type: dashboard
+    maturity: medium
+    description: >
+      Operational risk dashboard showing fraud signal distribution,
+      high risk customers, chargeback trends and device risk patterns.
+      Used by Risk and Compliance teams for daily monitoring.
+    owner:
+      name: Risk and Compliance
+      email: risk@company.com
+    depends_on:
+      - ref('feat_fraud_behavior')
+      - ref('fct_transactions')
+      - ref('fct_customer_value')
+
+  - name: marketing_activation_feed
+    label: Marketing Activation Feed
+    type: application
+    maturity: medium
+    description: >
+      Daily export of personalization features to CRM and
+      marketing automation platform. Contains recommended_channel,
+      recommended_offer_type and recommended_send_time per customer.
+      Used to personalize email, push and SMS campaigns.
+    owner:
+      name: Marketing Technology
+      email: martech@company.com
+    depends_on:
+      - ref('feat_personalization')
+      - ref('fct_customer_value')
+
+  - name: customer_360_report
+    label: Customer 360 Executive Report
+    type: dashboard
+    maturity: high
+    description: >
+      Executive level customer health report showing customer value
+      score trends, churn risk heatmap, acquisition channel
+      performance and loyalty tier migration over time.
+      Refreshes daily after dbt pipeline completes.
+    owner:
+      name: Analytics Engineering
+      email: analytics@company.com
+    depends_on:
+      - ref('fct_customer_value')
+      - ref('dim_customers')
+      - ref('fct_orders')
+
+  - name: ml_segmentation_pipeline
+    label: Snowpark KMeans Segmentation Pipeline
+    type: ml
+    maturity: high
+    description: >
+      Snowpark ML job consuming feat_customer_segmentation
+      normalized features. Runs KMeans clustering with k=6
+      daily and writes cluster labels to ML schema.
+      Segments used for campaign targeting and personalization.
+    owner:
+      name: Data Science
+      email: datascience@company.com
+    depends_on:
+      - ref('feat_customer_segmentation')
+
+  - name: anomaly_detection_pipeline
+    label: Snowpark IsolationForest Anomaly Detection
+    type: ml
+    maturity: medium
+    description: >
+      Snowpark ML job consuming feat_fraud_behavior features.
+      Trains IsolationForest unsupervised anomaly detector daily
+      and writes risk scores to ML schema.
+      Feeds fraud risk dashboard and compliance alerts.
+    owner:
+      name: Data Science
+      email: datascience@company.com
+    depends_on:
+      - ref('feat_fraud_behavior')
+
+  - name: personalization_recommendation_engine
+    label: Personalization and Recommendation Engine
+    type: application
+    maturity: medium
+    description: >
+      Real time recommendation engine consuming personalization
+      features to serve product recommendations, campaign offers
+      and channel targeting decisions at customer level.
+    owner:
+      name: Product Engineering
+      email: product@company.com
+    depends_on:
+      - ref('feat_personalization')
+      - ref('int_product_affinity')

@@ -1,0 +1,7 @@
+segment_id,segment_name,cluster_id,value_score_min,value_score_max,churn_risk_max,description,recommended_action,activation_channels
+0,High-Value Loyalists,0,75,100,30,High RFM + high engagement + low churn risk,Early access + loyalty rewards + premium bundles,email|push
+1,Deal Seekers,1,40,70,60,Mid RFM + high discount ratio + promo driven,Flash sale alerts + coupons + price drop notifications,email|sms
+2,New and Promising,2,50,80,50,Recent acquisition + growing + low order count,Onboarding journey + first purchase incentive + education,email|push
+3,Browsers Low Conversion,3,20,50,70,High sessions + low purchase rate + high cart abandon,Retargeting + social proof + urgency messaging,display|paid_social
+4,At Risk Churning,4,10,40,90,Low recency + declining frequency + high churn risk,Win back campaign + satisfaction survey + special offer,email|sms
+5,Premium Niche Buyers,5,50,80,40,Low volume + very high AOV + low discount sensitivity,Curated recommendations + exclusive previews + VIP access,email

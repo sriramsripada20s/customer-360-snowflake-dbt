@@ -1,0 +1,218 @@
+version: 2
+
+models:
+
+  - name: int_customer_orders
+    description: >
+      Customer level order aggregations — foundation for RFM metrics.
+      Joins stg_orders and stg_order_items.
+      One row per customer_id.
+      Fed into fct_customer_value and feat_customer_segmentation.
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: total_orders
+        description: "Lifetime order count excluding cancelled and returned"
+        tests:
+          - not_null
+      - name: total_revenue
+        description: "Lifetime net revenue"
+        tests:
+          - not_null
+      - name: avg_order_value
+        description: "Average net revenue per order"
+        tests:
+          - not_null
+      - name: recency_days
+        description: "Days since last order"
+        tests:
+          - not_null
+      - name: discount_ratio
+        description: "Proportion of orders using a discount — between 0 and 1"
+        tests:
+          - not_null
+      - name: return_rate
+        description: "Proportion of orders returned — between 0 and 1"
+        tests:
+          - not_null
+      - name: preferred_channel
+        tests:
+          - accepted_values:
+              values: ['web', 'mobile_app', 'in_store']
+              severity: warn
+
+  - name: int_customer_transactions
+    description: >
+      Customer level payment transaction aggregations.
+      Covers volume, failure rates, rolling 30 day signals,
+      night activity and international transactions.
+      One row per customer_id.
+      Fed into fct_customer_value and feat_customer_segmentation.
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: total_transactions
+        description: "Lifetime transaction count"
+        tests:
+          - not_null
+      - name: failed_txn_rate
+        description: "Proportion of failed transactions — between 0 and 1"
+        tests:
+          - not_null
+      - name: chargeback_rate
+        description: "Proportion of chargebacks — between 0 and 1"
+        tests:
+          - not_null
+      - name: refund_rate
+        description: "Proportion of refunds — between 0 and 1"
+        tests:
+          - not_null
+      - name: night_activity_ratio
+        description: "Proportion of transactions between midnight and 6am"
+        tests:
+          - not_null
+      - name: unique_cards_30d
+        description: "Distinct card BINs used in last 30 days"
+        tests:
+          - not_null
+      - name: unique_devices_30d
+        description: "Distinct device IDs used in last 30 days"
+        tests:
+          - not_null
+      - name: unique_countries_30d
+        description: "Distinct countries transacted from in last 30 days"
+        tests:
+          - not_null
+
+  - name: int_customer_fraud_signals
+    description: >
+      Customer level fraud and anomaly signals.
+      Covers device risk, card velocity, geographic velocity,
+      rapid repeat transactions and composite fraud signal score.
+      One row per customer_id.
+      Fed into fct_customer_value and feat_fraud_behavior.
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: fraud_signal_count
+        description: "Composite fraud score — count of triggered risk flags (0 to 7)"
+        tests:
+          - not_null
+      - name: risk_tier
+        description: "Risk classification based on fraud signal count"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW', 'NORMAL']
+      - name: high_risk_device_flag
+        tests:
+          - not_null
+      - name: multiple_cards_flag
+        tests:
+          - not_null
+      - name: geo_velocity_flag
+        tests:
+          - not_null
+      - name: rapid_txn_flag
+        tests:
+          - not_null
+      - name: has_chargeback_flag
+        tests:
+          - not_null
+      - name: high_failure_rate_flag
+        tests:
+          - not_null
+      - name: high_night_activity_flag
+        tests:
+          - not_null
+
+  - name: int_session_features
+    description: >
+      Customer level behavioral aggregations from clickstream events.
+      Authenticated sessions only.
+      Covers session volume, engagement depth, cart abandonment,
+      conversion rates and time preferences.
+      One row per customer_id.
+      Fed into fct_customer_value and feat_personalization.
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: total_sessions
+        description: "Lifetime authenticated session count"
+        tests:
+          - not_null
+      - name: sessions_last_30d
+        description: "Sessions in last 30 days"
+        tests:
+          - not_null
+      - name: cart_abandon_rate
+        description: "Proportion of sessions with cart add but no purchase"
+        tests:
+          - not_null
+      - name: cart_to_purchase_rate
+        description: "Proportion of cart adds that converted to purchase"
+        tests:
+          - not_null
+      - name: preferred_device
+        tests:
+          - accepted_values:
+              values: ['mobile', 'desktop', 'tablet']
+              severity: warn
+      - name: time_of_day_preference
+        tests:
+          - accepted_values:
+              values: ['morning', 'afternoon', 'evening', 'night']
+              severity: warn
+      - name: weekday_preference
+        tests:
+          - accepted_values:
+              values: ['weekday', 'weekend']
+
+  - name: int_product_affinity
+    description: >
+      Customer level product category affinity scores.
+      Combines purchase share of wallet with browse behavior.
+      Affinity score = 70% purchase share + 30% browse score.
+      One row per customer_id.
+      Fed into fct_customer_value and feat_personalization.
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: top_category_1
+        description: "Highest affinity product category"
+        tests:
+          - not_null
+      - name: top_category_1_score
+        description: "Affinity score for top category — between 0 and 1"
+        tests:
+          - not_null
+      - name: distinct_categories_purchased
+        description: "Number of distinct categories ever purchased"
+        tests:
+          - not_null
+      - name: category_entropy
+        description: >
+          Diversity of purchase behavior across categories.
+          High entropy = diverse buyer.
+          Low entropy = niche or specialist buyer.
+        tests:
+          - not_null
+      - name: overall_discount_item_ratio
+        description: "Proportion of purchased items that had a discount applied"
+        tests:
+          - not_null

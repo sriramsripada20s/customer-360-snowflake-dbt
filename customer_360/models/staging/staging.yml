@@ -1,0 +1,256 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "Cleaned and deduplicated customer profiles. One row per customer_id. Base for all customer models."
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier - lowercased and trimmed"
+        tests:
+          - unique
+          - not_null
+      - name: email
+        description: "Customer email - lowercased"
+        tests:
+          - unique
+          - not_null
+      - name: signup_date
+        tests:
+          - not_null
+      - name: loyalty_tier
+        tests:
+          - accepted_values:
+              values: ['bronze', 'silver', 'gold', 'platinum']
+      - name: tenure_band
+        tests:
+          - accepted_values:
+              values: ['new', 'developing', 'established', 'loyal']
+      - name: acquisition_channel
+        tests:
+          - accepted_values:
+              values: ['organic', 'paid_search', 'referral',
+                       'social', 'email', 'direct']
+              severity: warn
+      - name: is_active
+        tests:
+          - not_null
+      - name: age_band
+        tests:
+          - accepted_values:
+              values: ['Gen Z (18-24)', 'Millennial (25-34)',
+                       'Xennial (35-44)', 'Gen X (45-54)',
+                       'Boomer+ (55+)']
+              severity: warn
+
+  - name: stg_orders
+    description: "Cleaned order records with derived financial and behavioral flags. One row per order_id."
+    columns:
+      - name: order_id
+        description: "Unique order identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to stg_customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
+      - name: order_date
+        tests:
+          - not_null
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['pending', 'confirmed', 'shipped',
+                       'delivered', 'cancelled', 'returned']
+      - name: total_amount
+        tests:
+          - not_null
+      - name: net_revenue
+        description: "total_amount minus discount_amount"
+        tests:
+          - not_null
+      - name: channel
+        tests:
+          - accepted_values:
+              values: ['web', 'mobile_app', 'in_store']
+              severity: warn
+      - name: payment_method
+        tests:
+          - accepted_values:
+              values: ['credit_card', 'debit_card', 'paypal',
+                       'wallet', 'bnpl']
+              severity: warn
+
+  - name: stg_transactions
+    description: "Cleaned payment transactions with fraud-relevant device and geography fields. One row per transaction_id."
+    columns:
+      - name: transaction_id
+        description: "Unique transaction identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: transaction_date
+        tests:
+          - not_null
+      - name: amount
+        tests:
+          - not_null
+      - name: payment_status
+        tests:
+          - accepted_values:
+              values: ['authorized', 'failed', 'refunded',
+                       'chargeback', 'pending']
+      - name: device_type
+        tests:
+          - accepted_values:
+              values: ['mobile', 'desktop', 'tablet']
+              severity: warn
+      - name: is_failed
+        tests:
+          - not_null
+      - name: is_chargeback
+        tests:
+          - not_null
+      - name: is_night_transaction
+        tests:
+          - not_null
+      - name: is_international
+        tests:
+          - not_null
+
+  - name: stg_events
+    description: "Clickstream behavioral events with identity resolution. One row per event_id."
+    columns:
+      - name: event_id
+        description: "Unique event identifier"
+        tests:
+          - unique
+          - not_null
+      - name: event_timestamp
+        tests:
+          - not_null
+      - name: event_type
+        tests:
+          - accepted_values:
+              values: ['page_view', 'product_view', 'add_to_cart',
+                       'remove_from_cart', 'checkout_start',
+                       'checkout_complete', 'purchase',
+                       'search', 'login', 'logout']
+              severity: warn
+      - name: identity_type
+        tests:
+          - accepted_values:
+              values: ['authenticated', 'anonymous']
+      - name: time_of_day
+        tests:
+          - accepted_values:
+              values: ['morning', 'afternoon', 'evening', 'night']
+      - name: is_product_view
+        tests:
+          - not_null
+      - name: is_add_to_cart
+        tests:
+          - not_null
+      - name: is_purchase
+        tests:
+          - not_null
+
+  - name: stg_campaigns
+    description: "Marketing campaign send and engagement events. One row per campaign_response_id."
+    columns:
+      - name: campaign_response_id
+        description: "Unique campaign response identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: sent_at
+        tests:
+          - not_null
+      - name: campaign_type
+        tests:
+          - accepted_values:
+              values: ['email', 'push', 'sms',
+                       'display', 'paid_social']
+      - name: engagement_level
+        tests:
+          - accepted_values:
+              values: ['converted', 'clicked', 'opened',
+                       'unsubscribed', 'sent_only']
+      - name: is_opened
+        tests:
+          - not_null
+      - name: is_clicked
+        tests:
+          - not_null
+      - name: is_converted
+        tests:
+          - not_null
+
+  - name: stg_order_items
+    description: "Order line items with margin and category fields. One row per order_item_id."
+    columns:
+      - name: order_item_id
+        description: "Unique order item identifier"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+      - name: quantity
+        tests:
+          - not_null
+      - name: unit_price
+        tests:
+          - not_null
+      - name: category
+        tests:
+          - accepted_values:
+              values: ['electronics', 'apparel', 'home',
+                       'sports', 'beauty', 'accessories']
+              severity: warn
+      - name: is_discounted
+        tests:
+          - not_null
+
+  - name: stg_products
+    description: "Cleaned product catalog with margin and price band calculations. One row per product_id."
+    columns:
+      - name: product_id
+        description: "Unique product identifier"
+        tests:
+          - unique
+          - not_null
+      - name: product_name
+        tests:
+          - not_null
+      - name: category
+        tests:
+          - accepted_values:
+              values: ['electronics', 'apparel', 'home',
+                       'sports', 'beauty', 'accessories']
+              severity: warn
+      - name: base_price
+        tests:
+          - not_null
+      - name: price_band
+        tests:
+          - accepted_values:
+              values: ['budget', 'mid', 'premium', 'luxury']
+              severity: warn
+      - name: is_active
+        tests:
+          - not_null

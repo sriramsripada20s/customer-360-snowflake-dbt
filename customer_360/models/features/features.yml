@@ -1,0 +1,214 @@
+version: 2
+
+models:
+
+  - name: feat_customer_segmentation
+    description: >
+      ML-ready feature table for KMeans customer segmentation.
+      All _norm columns are min-max scaled to [0,1] range.
+      Incremental — only reprocesses customers updated since last run.
+      One row per active customer_id.
+      Fed into Snowpark KMeans clustering job.
+      Owner: Data Science.
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_sk
+        tests:
+          - unique
+          - not_null
+      - name: recency_norm
+        description: "Normalized recency — inverted so higher = more recent"
+        tests:
+          - not_null
+      - name: frequency_norm
+        description: "Normalized order frequency — higher = more orders"
+        tests:
+          - not_null
+      - name: monetary_norm
+        description: "Normalized total revenue — higher = more spend"
+        tests:
+          - not_null
+      - name: avg_order_value_norm
+        description: "Normalized average order value"
+        tests:
+          - not_null
+      - name: email_engagement_norm
+        description: "Normalized email click rate"
+        tests:
+          - not_null
+      - name: session_activity_norm
+        description: "Normalized session count in last 30 days"
+        tests:
+          - not_null
+      - name: conversion_propensity_norm
+        description: "Normalized conversion — inverted cart abandon rate"
+        tests:
+          - not_null
+      - name: price_sensitivity_norm
+        description: "Normalized price sensitivity — inverted discount ratio"
+        tests:
+          - not_null
+      - name: category_diversity_norm
+        description: "Normalized category entropy"
+        tests:
+          - not_null
+      - name: loyalty_norm
+        description: "Normalized loyalty tier rank — 0.25 to 1.0"
+        tests:
+          - not_null
+      - name: risk_tier
+        tests:
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW', 'NORMAL']
+      - name: feature_created_at
+        tests:
+          - not_null
+
+  - name: feat_fraud_behavior
+    description: >
+      Fraud and anomaly detection features per customer.
+      Combines payment failure rates, device risk, card velocity,
+      geographic velocity and rapid transaction signals.
+      Includes normalized [0-1] features for IsolationForest.
+      Incremental — only reprocesses customers updated since last run.
+      One row per customer_id.
+      Fed into Snowpark IsolationForest anomaly detection job.
+      Owner: Data Science + Risk.
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_sk
+        tests:
+          - unique
+          - not_null
+      - name: failed_txn_rate
+        description: "Proportion of failed transactions — between 0 and 1"
+        tests:
+          - not_null
+      - name: chargeback_rate
+        description: "Proportion of chargebacks — between 0 and 1"
+        tests:
+          - not_null
+      - name: fraud_signal_count
+        description: "Composite fraud score — count of triggered flags (0 to 7)"
+        tests:
+          - not_null
+      - name: risk_tier
+        description: "Risk classification based on fraud signal count"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW', 'NORMAL']
+      - name: high_risk_device_flag
+        tests:
+          - not_null
+      - name: multiple_cards_flag
+        tests:
+          - not_null
+      - name: geo_velocity_flag
+        tests:
+          - not_null
+      - name: rapid_txn_flag
+        tests:
+          - not_null
+      - name: has_chargeback_flag
+        tests:
+          - not_null
+      - name: failed_txn_rate_norm
+        description: "Normalized failed transaction rate — between 0 and 1"
+        tests:
+          - not_null
+      - name: card_velocity_norm
+        description: "Normalized card velocity — capped at 10 cards"
+        tests:
+          - not_null
+      - name: device_velocity_norm
+        description: "Normalized device velocity — capped at 5 devices"
+        tests:
+          - not_null
+      - name: fraud_signal_norm
+        description: "Normalized fraud signal count — divided by 7"
+        tests:
+          - not_null
+      - name: feature_created_at
+        tests:
+          - not_null
+
+  - name: feat_personalization
+    description: >
+      Personalization features for recommendation engine and
+      campaign targeting. Combines product affinity, channel
+      preference, timing preference and engagement signals.
+      Includes derived segments and recommended actions per customer.
+      Incremental — only reprocesses customers updated since last run.
+      One row per customer_id.
+      Fed into campaign targeting and recommendation engine.
+      Owner: Data Science + Marketing.
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_sk
+        tests:
+          - unique
+          - not_null
+      - name: top_category_1
+        description: "Highest affinity product category NULL for customers with no purchase history."
+      - name: price_segment
+        tests:
+          - accepted_values:
+              values: ['premium', 'mid', 'value', 'budget']
+      - name: discount_sensitivity
+        tests:
+          - accepted_values:
+              values: ['high', 'medium', 'low', 'none']
+      - name: email_engagement_tier
+        tests:
+          - accepted_values:
+              values: ['highly_engaged', 'engaged',
+                       'low_engaged', 'unengaged']
+      - name: purchase_frequency_tier
+        tests:
+          - accepted_values:
+              values: ['very_frequent', 'frequent',
+                       'occasional', 'rare', 'inactive']
+      - name: recommended_channel
+        description: "Best channel to reach this customer"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['email', 'push', 'sms',
+                       'display', 'paid_social']
+      - name: recommended_offer_type
+        description: "Best offer type for this customer"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['discount_offer', 'category_recommendation',
+                       'cart_recovery', 'winback_offer',
+                       'loyalty_reward', 'new_arrival']
+      - name: recommended_send_time
+        description: "Best time window to send campaign"
+        tests:
+          - not_null
+      - name: customer_value_score
+        tests:
+          - not_null
+      - name: churn_risk_score
+        tests:
+          - not_null
+      - name: personalization_score
+        tests:
+          - not_null
+      - name: feature_created_at
+        tests:
+          - not_null

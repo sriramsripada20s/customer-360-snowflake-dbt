@@ -1,0 +1,254 @@
+name: dbt CI Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dbt_project/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'dbt_project/**'
+
+env:
+  DBT_PROFILES_DIR: ./dbt_project
+
+jobs:
+
+  # ──────────────────────────────────────────────────────────────
+  # Job 1: dbt compile + parse
+  # Runs on every PR — no Snowflake connection needed
+  # Catches: syntax errors, broken refs, missing sources
+  # ──────────────────────────────────────────────────────────────
+  dbt-compile:
+    name: dbt Compile and Parse
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dbt
+        working-directory: dbt_project
+        run: |
+          pip install dbt-snowflake==1.9.0
+
+      - name: Install dbt packages
+        working-directory: dbt_project
+        run: dbt deps
+
+      - name: Write CI profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          customer_360:
+            target: ci
+            outputs:
+              ci:
+                type: snowflake
+                account: placeholder
+                user: placeholder
+                password: placeholder
+                role: TRANSFORMER_ROLE
+                database: CUSTOMER_PLATFORM
+                warehouse: WH_DBT_TRANSFORM
+                schema: STAGE
+                threads: 1
+          EOF
+
+      - name: dbt compile
+        working-directory: dbt_project
+        run: dbt compile --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt parse
+        working-directory: dbt_project
+        run: dbt parse --profiles-dir ~/.dbt --no-use-colors
+
+  # ──────────────────────────────────────────────────────────────
+  # Job 2: dbt build + test on Snowflake
+  # Runs on PR to main — requires Snowflake credentials
+  # Creates temp CI schema — auto deleted after run
+  # Catches: data quality failures, model errors, test failures
+  # ──────────────────────────────────────────────────────────────
+  dbt-build:
+    name: dbt Build and Test
+    runs-on: ubuntu-latest
+    needs: dbt-compile
+    if: github.event_name == 'pull_request'
+    environment: ci
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dbt
+        working-directory: dbt_project
+        run: |
+          pip install dbt-snowflake==1.9.0
+
+      - name: Install dbt packages
+        working-directory: dbt_project
+        run: dbt deps
+
+      - name: Write profiles.yml from secrets
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          customer_360:
+            target: ci
+            outputs:
+              ci:
+                type: snowflake
+                account: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+                user: ${{ secrets.SNOWFLAKE_USER }}
+                password: ${{ secrets.SNOWFLAKE_PASSWORD }}
+                role: TRANSFORMER_ROLE
+                database: CUSTOMER_PLATFORM
+                warehouse: WH_DBT_TRANSFORM
+                schema: CI_${{ github.event.pull_request.number }}
+                threads: 4
+          EOF
+
+      - name: dbt build — staging
+        working-directory: dbt_project
+        run: dbt build --select staging --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt build — intermediate
+        working-directory: dbt_project
+        run: dbt build --select intermediate --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt build — marts
+        working-directory: dbt_project
+        run: dbt build --select marts --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt build — features
+        working-directory: dbt_project
+        run: dbt build --select features --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt test — singular tests
+        working-directory: dbt_project
+        run: dbt test --select test_type:singular --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt source freshness
+        working-directory: dbt_project
+        run: dbt source freshness --profiles-dir ~/.dbt --no-use-colors
+        continue-on-error: true
+
+      - name: Upload dbt artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dbt-artifacts-pr-${{ github.event.pull_request.number }}
+          path: |
+            dbt_project/target/manifest.json
+            dbt_project/target/run_results.json
+          retention-days: 7
+
+      - name: Cleanup CI schema
+        if: always()
+        env:
+          SNOWFLAKE_ACCOUNT:  ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER:     ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        run: |
+          python - << 'EOF'
+          import os
+          import snowflake.connector
+          conn = snowflake.connector.connect(
+              account  = os.environ["SNOWFLAKE_ACCOUNT"],
+              user     = os.environ["SNOWFLAKE_USER"],
+              password = os.environ["SNOWFLAKE_PASSWORD"],
+              role     = "TRANSFORMER_ROLE",
+              warehouse= "WH_DBT_TRANSFORM",
+              database = "CUSTOMER_PLATFORM",
+          )
+          pr = "${{ github.event.pull_request.number }}"
+          schemas = [
+              f"CI_{pr}_STAGE",
+              f"CI_{pr}_CORE",
+              f"CI_{pr}_MART",
+              f"CI_{pr}_FEATURES",
+          ]
+          cur = conn.cursor()
+          for schema in schemas:
+              cur.execute(f"DROP SCHEMA IF EXISTS CUSTOMER_PLATFORM.{schema} CASCADE")
+              print(f"Dropped: {schema}")
+          conn.close()
+          EOF
+
+  # ──────────────────────────────────────────────────────────────
+  # Job 3: dbt docs generate + deploy to GitHub Pages
+  # Runs on merge to main only
+  # ──────────────────────────────────────────────────────────────
+  dbt-docs:
+    name: Generate and Deploy dbt Docs
+    runs-on: ubuntu-latest
+    needs: dbt-compile
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    permissions:
+      pages:    write
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dbt
+        working-directory: dbt_project
+        run: |
+          pip install dbt-snowflake==1.9.0
+
+      - name: Install dbt packages
+        working-directory: dbt_project
+        run: dbt deps
+
+      - name: Write profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          customer_360:
+            target: prod
+            outputs:
+              prod:
+                type: snowflake
+                account: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+                user: ${{ secrets.SNOWFLAKE_USER }}
+                password: ${{ secrets.SNOWFLAKE_PASSWORD }}
+                role: TRANSFORMER_ROLE
+                database: CUSTOMER_PLATFORM
+                warehouse: WH_DBT_TRANSFORM
+                schema: STAGE
+                threads: 4
+          EOF
+
+      - name: dbt docs generate
+        working-directory: dbt_project
+        run: dbt docs generate --profiles-dir ~/.dbt --no-use-colors
+
+      - name: Upload docs artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dbt_project/target/
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

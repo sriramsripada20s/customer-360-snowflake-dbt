@@ -1,0 +1,19 @@
+name: customer_360
+version: 1.0.0
+config-version: 2
+profile: customer_360
+model-paths:
+  - models
+analysis-paths:
+  - analyses
+test-paths:
+  - tests
+seed-paths:
+  - seeds
+macro-paths:
+  - macros
+snapshot-paths:
+  - snapshots
+models:
+  customer_360:
+    +materialized: view
