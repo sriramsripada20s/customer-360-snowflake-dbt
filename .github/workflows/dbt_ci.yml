@@ -29,21 +29,30 @@ jobs:
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
         run: |
           mkdir -p ~/.dbt
-          cat <<EOF > ~/.dbt/profiles.yml
-          customer_360:
-            target: ci
-            outputs:
-              ci:
-                type: snowflake
-                account: ${SNOWFLAKE_ACCOUNT}
-                user: ${SNOWFLAKE_USER}
-                password: ${SNOWFLAKE_PASSWORD}
-                role: TRANSFORMER_ROLE
-                database: CUSTOMER_PLATFORM
-                warehouse: WH_DBT_TRANSFORM
-                schema: STAGE
-                threads: 4
-          EOF
+          python3 - << 'PYEOF'
+          import os, yaml
+          profile = {
+              "customer_360": {
+                  "target": "ci",
+                  "outputs": {
+                      "ci": {
+                          "type": "snowflake",
+                          "account": os.environ["SNOWFLAKE_ACCOUNT"],
+                          "user": os.environ["SNOWFLAKE_USER"],
+                          "password": os.environ["SNOWFLAKE_PASSWORD"],
+                          "role": "TRANSFORMER_ROLE",
+                          "database": "CUSTOMER_PLATFORM",
+                          "warehouse": "WH_DBT_TRANSFORM",
+                          "schema": "STAGE",
+                          "threads": 4
+                      }
+                  }
+              }
+          }
+          with open(os.path.expanduser("~/.dbt/profiles.yml"), "w") as f:
+              yaml.dump(profile, f, default_flow_style=False)
+          print("profiles.yml written successfully")
+          PYEOF
 
       - name: Install dbt packages
         working-directory: customer_360
