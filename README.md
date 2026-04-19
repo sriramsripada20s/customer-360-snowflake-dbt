@@ -341,6 +341,8 @@ Model outputs written back to Snowflake after Snowpark ML scoring.
 | Raw Storage | AWS S3 |
 | BI | Power BI / Sigma |
 
+#citest
+
 ---
 
 ## Author
