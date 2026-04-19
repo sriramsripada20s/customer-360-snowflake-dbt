@@ -1,0 +1,80 @@
+name: dbt CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  dbt-compile:
+    name: dbt Compile and Parse
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: pip install dbt-snowflake==1.9.0
+
+      - name: Write profiles.yml
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        run: |
+          mkdir -p ~/.dbt
+          cat <<EOF > ~/.dbt/profiles.yml
+          customer_360:
+            target: ci
+            outputs:
+              ci:
+                type: snowflake
+                account: ${SNOWFLAKE_ACCOUNT}
+                user: ${SNOWFLAKE_USER}
+                password: ${SNOWFLAKE_PASSWORD}
+                role: TRANSFORMER_ROLE
+                database: CUSTOMER_PLATFORM
+                warehouse: WH_DBT_TRANSFORM
+                schema: STAGE
+                threads: 4
+          EOF
+
+      - name: Install dbt packages
+        working-directory: customer_360
+        run: dbt deps
+
+      - name: dbt compile
+        working-directory: customer_360
+        run: dbt compile --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt build staging
+        working-directory: customer_360
+        run: dbt build --select models/staging --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt build intermediate
+        working-directory: customer_360
+        run: dbt build --select models/intermediate --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt build marts
+        working-directory: customer_360
+        run: dbt build --select models/mart --profiles-dir ~/.dbt --no-use-colors
+
+      - name: dbt build features
+        working-directory: customer_360
+        run: dbt build --select models/features --profiles-dir ~/.dbt --no-use-colors
+
+      - name: Upload dbt artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dbt-artifacts
+          path: |
+            customer_360/target/manifest.json
+            customer_360/target/run_results.json
+          retention-days: 7
