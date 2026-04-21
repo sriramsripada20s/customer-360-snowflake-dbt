@@ -347,4 +347,4 @@ Model outputs written back to Snowflake after Snowpark ML scoring.
 
 **Sriram S** | Analytics Engineering + Data Science
 MS Business Analytics and Information Systems — University of South Florida
-AWS ML Engineer Certified | Google Advanced Data Analytics Certified
+AWS ML Engineer Certified | Google Advanced Data Analytics Certified.
