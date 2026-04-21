@@ -1,4 +1,4 @@
-# Customer 360 | Segmentation, Personalization & Fraud Detection Platform using Snowflake, dbt, Machine Learning
+# Customer 360 | Segmentation, Personalization & Fraud Detection Platform | Snowflake, dbt, Machine Learning
 
 > An end-to-end data platform built on Snowflake and dbt that transforms
 > raw customer data into actionable intelligence — powering personalized
