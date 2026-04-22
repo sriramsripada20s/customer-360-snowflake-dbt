@@ -1,20 +1,15 @@
 {{
   config(
-    materialized = 'table',
-    meta = { 'metricflow_time_spine': true }
+    materialized = 'table'
   )
 }}
 
-WITH spine AS (
-    {{
-        dbt_utils.date_spine(
-            datepart = 'day',
-            start_date = "cast('2020-01-01' as date)",
-            end_date = "cast('2030-12-31' as date)"
-        )
-    }}
+WITH date_spine AS (
+    SELECT
+        DATEADD(DAY, SEQ4(), '2020-01-01'::DATE) AS date_day
+    FROM TABLE(GENERATOR(ROWCOUNT => 4018))
 )
 
-SELECT
-    CAST(date_day AS DATE) AS date_day
-FROM spine
+SELECT date_day
+FROM date_spine
+WHERE date_day <= '2030-12-31'::DATE
