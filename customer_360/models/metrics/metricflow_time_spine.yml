@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: metricflow_time_spine
+    description: Time spine table required by MetricFlow semantic layer
+    columns:
+      - name: date_day
+        description: One row per calendar day from 2020 to 2030
+        tests:
+          - unique
+          - not_null
