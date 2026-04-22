@@ -1,0 +1,138 @@
+version: 2
+
+semantic_models:
+  - name: customer_360
+    description: >
+      Semantic model built on fct_customer_value.
+      Single source of truth for all customer metrics consumed
+      by BI dashboards, Cortex AI Agent, and ad-hoc analysis.
+    model: ref('fct_customer_value')
+    defaults:
+      agg_time_dimension: last_order_date
+
+    entities:
+      - name: customer
+        type: primary
+        expr: customer_id
+
+    dimensions:
+      - name: loyalty_tier
+        type: categorical
+        expr: loyalty_tier
+      - name: tenure_band
+        type: categorical
+        expr: tenure_band
+      - name: age_band
+        type: categorical
+        expr: age_band
+      - name: region
+        type: categorical
+        expr: region
+      - name: acquisition_channel
+        type: categorical
+        expr: acquisition_channel
+      - name: risk_tier
+        type: categorical
+        expr: risk_tier
+      - name: is_active
+        type: categorical
+        expr: is_active
+      - name: preferred_channel
+        type: categorical
+        expr: preferred_channel
+      - name: last_order_date
+        type: time
+        expr: last_order_date
+        type_params:
+          time_granularity: day
+
+    measures:
+      - name: total_customers
+        description: Count of distinct customers
+        agg: count_distinct
+        expr: customer_id
+
+      - name: active_customers
+        description: Count of active customers only
+        agg: count_distinct
+        expr: CASE WHEN is_active THEN customer_id END
+
+      - name: total_revenue
+        description: Sum of lifetime revenue
+        agg: sum
+        expr: total_revenue
+
+      - name: revenue_last_30d
+        description: Sum of revenue in last 30 days
+        agg: sum
+        expr: revenue_last_30d
+
+      - name: revenue_last_90d
+        description: Sum of revenue in last 90 days
+        agg: sum
+        expr: revenue_last_90d
+
+      - name: avg_order_value
+        description: Average order value per customer
+        agg: average
+        expr: avg_order_value
+
+      - name: avg_customer_value_score
+        description: Average customer value score 0 to 100
+        agg: average
+        expr: customer_value_score
+
+      - name: avg_churn_risk_score
+        description: Average churn risk score 0 to 100
+        agg: average
+        expr: churn_risk_score
+
+      - name: avg_personalization_score
+        description: Average personalization score 0 to 100
+        agg: average
+        expr: personalization_score
+
+      - name: avg_recency_days
+        description: Average days since last order
+        agg: average
+        expr: recency_days
+
+      - name: avg_total_orders
+        description: Average number of orders per customer
+        agg: average
+        expr: total_orders
+
+      - name: high_risk_customers
+        description: Count of customers in HIGH fraud risk tier
+        agg: count_distinct
+        expr: CASE WHEN risk_tier = 'HIGH' THEN customer_id END
+
+      - name: avg_cart_abandon_rate
+        description: Average cart abandonment rate
+        agg: average
+        expr: cart_abandon_rate
+
+      - name: avg_email_open_rate
+        description: Average email open rate
+        agg: average
+        expr: email_open_rate
+
+      - name: avg_email_click_rate
+        description: Average email click rate
+        agg: average
+        expr: email_click_rate
+
+      - name: avg_failed_txn_rate
+        description: Average failed transaction rate
+        agg: average
+        expr: failed_txn_rate
+
+      - name: avg_chargeback_rate
+        description: Average chargeback rate
+        agg: average
+        expr: chargeback_rate
+
+      - name: avg_fraud_signal_count
+        description: Average number of fraud signals per customer
+        agg: average
+        expr: fraud_signal_count

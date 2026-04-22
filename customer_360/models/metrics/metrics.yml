@@ -1,0 +1,134 @@
+version: 2
+
+metrics:
+  - name: total_customers
+    label: Total Customers
+    description: Total unique customers
+    type: simple
+    type_params:
+      measure: total_customers
+
+  - name: active_customers
+    label: Active Customers
+    description: Total active customers
+    type: simple
+    type_params:
+      measure: active_customers
+
+  - name: total_revenue
+    label: Total Revenue
+    description: Total lifetime revenue across all customers
+    type: simple
+    type_params:
+      measure: total_revenue
+
+  - name: revenue_last_30d
+    label: Revenue Last 30 Days
+    description: Total revenue in the last 30 days
+    type: simple
+    type_params:
+      measure: revenue_last_30d
+
+  - name: revenue_last_90d
+    label: Revenue Last 90 Days
+    description: Total revenue in the last 90 days
+    type: simple
+    type_params:
+      measure: revenue_last_90d
+
+  - name: avg_order_value
+    label: Average Order Value
+    description: Average order value per customer
+    type: simple
+    type_params:
+      measure: avg_order_value
+
+  - name: avg_customer_value_score
+    label: Avg Customer Value Score
+    description: Average customer value score 0 to 100
+    type: simple
+    type_params:
+      measure: avg_customer_value_score
+
+  - name: avg_churn_risk_score
+    label: Avg Churn Risk Score
+    description: >
+      Average churn risk score 0 to 100.
+      Higher score means higher risk of churning.
+    type: simple
+    type_params:
+      measure: avg_churn_risk_score
+
+  - name: avg_personalization_score
+    label: Avg Personalization Score
+    description: Average personalization score 0 to 100
+    type: simple
+    type_params:
+      measure: avg_personalization_score
+
+  - name: avg_recency_days
+    label: Avg Recency Days
+    description: Average days since last order across customers
+    type: simple
+    type_params:
+      measure: avg_recency_days
+
+  - name: high_risk_customer_count
+    label: High Risk Customer Count
+    description: Count of customers in HIGH fraud risk tier
+    type: simple
+    type_params:
+      measure: high_risk_customers
+
+  - name: churn_rate
+    label: Churn Rate
+    description: >
+      Ratio of high churn risk customers to total active customers.
+      Used as a proxy churn rate metric across segments.
+    type: ratio
+    type_params:
+      numerator: high_risk_customer_count
+      denominator: active_customers
+
+  - name: avg_cart_abandon_rate
+    label: Avg Cart Abandonment Rate
+    description: Average cart abandonment rate across customers
+    type: simple
+    type_params:
+      measure: avg_cart_abandon_rate
+
+  - name: avg_email_open_rate
+    label: Avg Email Open Rate
+    description: Average email open rate across customers
+    type: simple
+    type_params:
+      measure: avg_email_open_rate
+
+  - name: avg_email_click_rate
+    label: Avg Email Click Rate
+    description: Average email click rate across customers
+    type: simple
+    type_params:
+      measure: avg_email_click_rate
+
+  - name: avg_failed_txn_rate
+    label: Avg Failed Transaction Rate
+    description: Average failed transaction rate — payment health signal
+    type: simple
+    type_params:
+      measure: avg_failed_txn_rate
+
+  - name: avg_chargeback_rate
+    label: Avg Chargeback Rate
+    description: Average chargeback rate — fraud and dispute signal
+    type: simple
+    type_params:
+      measure: avg_chargeback_rate
+
+  - name: revenue_per_active_customer
+    label: Revenue Per Active Customer
+    description: Total revenue divided by active customer count
+    type: ratio
+    type_params:
+      numerator: total_revenue
+      denominator: active_customers
