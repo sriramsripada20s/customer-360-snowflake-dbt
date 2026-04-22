@@ -16,4 +16,13 @@ snapshot-paths:
   - snapshots
 models:
   customer_360:
-    +materialized: view
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: ephemeral
+    mart:
+      +materialized: table
+    features:
+      +materialized: incremental
+    metrics:
+      +materialized: table

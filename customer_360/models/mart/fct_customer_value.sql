@@ -1,3 +1,9 @@
+{{
+  config(
+    materialized='table'
+  )
+}}
+
 WITH customers AS (
     SELECT * FROM {{ ref('dim_customers') }}
 ),
