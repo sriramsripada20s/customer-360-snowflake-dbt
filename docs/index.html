@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer 360 — dbt + Snowflake Portfolio</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0D1117;color:#E6EDF3;line-height:1.6;}
+.hero{background:#161B22;border-bottom:1px solid #30363D;padding:48px 40px;}
+.hero h1{font-size:28px;font-weight:600;color:#E6EDF3;margin-bottom:8px;}
+.hero p{font-size:15px;color:#8B949E;max-width:600px;}
+.badges{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.badge{font-size:11px;padding:4px 10px;border-radius:12px;font-weight:500;}
+.b-blue{background:#1F3A5F;color:#58A6FF;}
+.b-green{background:#1A3A1A;color:#3FB950;}
+.b-purple{background:#2D1F4F;color:#BC8CFF;}
+.b-amber{background:#3A2A0A;color:#D29922;}
+.container{max-width:1100px;margin:0 auto;padding:40px;}
+.section-title{font-size:13px;font-weight:500;color:#6E7681;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:40px;}
+.stat{background:#161B22;border:1px solid #30363D;border-radius:8px;padding:16px;}
+.stat-val{font-size:26px;font-weight:600;margin-bottom:4px;}
+.stat-label{font-size:12px;color:#8B949E;}
+.green{color:#3FB950;}
+.blue{color:#58A6FF;}
+.purple{color:#BC8CFF;}
+.amber{color:#D29922;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px;}
+.card{background:#161B22;border:1px solid #30363D;border-radius:8px;padding:20px;}
+.card h3{font-size:13px;font-weight:500;color:#8B949E;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;}
+.pipeline-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.layer-badge{font-size:10px;padding:2px 8px;border-radius:4px;min-width:80px;text-align:center;}
+.l-raw{background:#21262D;color:#8B949E;}
+.l-stg{background:#1F3A5F;color:#58A6FF;}
+.l-int{background:#2D1F4F;color:#BC8CFF;}
+.l-mart{background:#1A3A1A;color:#3FB950;}
+.l-feat{background:#3A2A0A;color:#D29922;}
+.l-ml{background:#3A1A1A;color:#F85149;}
+.model-name{font-size:12px;color:#C9D1D9;font-family:monospace;}
+.arrow{color:#30363D;font-size:12px;}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.metric-item{background:#0D1117;border:1px solid #21262D;border-radius:6px;padding:8px 12px;}
+.metric-name{font-size:12px;font-family:monospace;color:#58A6FF;margin-bottom:2px;}
+.metric-dim{font-size:10px;color:#6E7681;}
+.stack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:40px;}
+.stack-card{background:#161B22;border:1px solid #30363D;border-radius:8px;padding:14px;}
+.stack-cat{font-size:10px;color:#6E7681;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.stack-item{font-size:12px;color:#C9D1D9;padding:3px 0;border-bottom:1px solid #21262D;}
+.stack-item:last-child{border:none;}
+.pipeline-status{background:#161B22;border:1px solid #30363D;border-radius:8px;padding:20px;margin-bottom:40px;}
+.run-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #21262D;}
+.run-row:last-child{border:none;}
+.run-name{font-size:13px;color:#C9D1D9;}
+.run-meta{font-size:11px;color:#6E7681;}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;}
+.dot-green{background:#3FB950;}
+.dot-amber{background:#D29922;}
+.links{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+.link-btn{font-size:13px;padding:8px 16px;border-radius:6px;text-decoration:none;border:1px solid #30363D;color:#C9D1D9;background:#161B22;}
+.link-btn:hover{border-color:#58A6FF;color:#58A6FF;}
+footer{text-align:center;padding:32px;color:#6E7681;font-size:12px;border-top:1px solid #21262D;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Customer 360 — dbt + Snowflake</h1>
+  <p>End-to-end analytics engineering portfolio project. Medallion architecture processing 750K+ daily transactions with MetricFlow semantic layer and automated CI/CD.</p>
+  <div class="badges">
+    <span class="badge b-blue">dbt Cloud</span>
+    <span class="badge b-blue">Snowflake</span>
+    <span class="badge b-green">290 tests passing</span>
+    <span class="badge b-purple">MetricFlow</span>
+    <span class="badge b-amber">GitHub Actions</span>
+    <span class="badge b-green">Production live</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section-title">pipeline overview</div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val green">290</div>
+      <div class="stat-label">tests passing</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val blue">750K</div>
+      <div class="stat-label">transactions processed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val purple">18</div>
+      <div class="stat-label">MetricFlow metrics</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val amber">6 AM UTC</div>
+      <div class="stat-label">daily prod refresh</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>data lineage</h3>
+      <div class="pipeline-row">
+        <span class="layer-badge l-raw">raw</span>
+        <span class="arrow">→</span>
+        <span class="model-name">raw_customers, raw_transactions...</span>
+      </div>
+      <div class="pipeline-row">
+        <span class="layer-badge l-stg">staging</span>
+        <span class="arrow">→</span>
+        <span class="model-name">stg_customers, stg_orders...</span>
+      </div>
+      <div class="pipeline-row">
+        <span class="layer-badge l-int">intermediate</span>
+        <span class="arrow">→</span>
+        <span class="model-name">int_customer_transactions...</span>
+      </div>
+      <div class="pipeline-row">
+        <span class="layer-badge l-mart">marts</span>
+        <span class="arrow">→</span>
+        <span class="model-name">dim_customers, fct_orders...</span>
+      </div>
+      <div class="pipeline-row">
+        <span class="layer-badge l-feat">features</span>
+        <span class="arrow">→</span>
+        <span class="model-name">feat_fraud_behavior...</span>
+      </div>
+      <div class="pipeline-row">
+        <span class="layer-badge l-ml">ML / BI</span>
+        <span class="arrow">→</span>
+        <span class="model-name">Snowpark, Sigma, MetricFlow</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>MetricFlow semantic layer</h3>
+      <div class="metric-grid">
+        <div class="metric-item">
+          <div class="metric-name">total_customers</div>
+          <div class="metric-dim">by loyalty_tier, age_band</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">churn_rate</div>
+          <div class="metric-dim">by acquisition_channel</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">total_revenue</div>
+          <div class="metric-dim">by loyalty_tier, region</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">revenue_last_30d</div>
+          <div class="metric-dim">by age_band</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">avg_order_value</div>
+          <div class="metric-dim">by loyalty_tier</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">high_risk_customer_count</div>
+          <div class="metric-dim">by acquisition_channel</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">avg_churn_risk_score</div>
+          <div class="metric-dim">by loyalty_tier</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">avg_personalization_score</div>
+          <div class="metric-dim">by age_band</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">pipeline status</div>
+  <div class="pipeline-status">
+    <div class="run-row">
+      <div>
+        <div class="run-name"><span class="status-dot dot-green"></span>Daily Pipeline Refresh — Production</div>
+        <div class="run-meta">dbt build · 290 passing · 0 errors · runs 6 AM UTC daily</div>
+      </div>
+      <div style="font-size:12px;color:#3FB950;">live</div>
+    </div>
+    <div class="run-row">
+      <div>
+        <div class="run-name"><span class="status-dot dot-green"></span>CI/CD — Pull Request Validation</div>
+        <div class="run-meta">GitHub Actions · dbt build on every PR to main</div>
+      </div>
+      <div style="font-size:12px;color:#3FB950;">active</div>
+    </div>
+    <div class="run-row">
+      <div>
+        <div class="run-name"><span class="status-dot dot-green"></span>MetricFlow Semantic Layer</div>
+        <div class="run-meta">18 metrics · 5 dimensions · queryable from any BI tool</div>
+      </div>
+      <div style="font-size:12px;color:#3FB950;">active</div>
+    </div>
+    <div class="run-row">
+      <div>
+        <div class="run-name"><span class="status-dot dot-amber"></span>Self-healing Agent</div>
+        <div class="run-meta">ReAct diagnostic agent · Claude API · coming soon</div>
+      </div>
+      <div style="font-size:12px;color:#D29922;">in progress</div>
+    </div>
+  </div>
+
+  <div class="section-title">tech stack</div>
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="stack-cat">transformation</div>
+      <div class="stack-item">dbt Cloud</div>
+      <div class="stack-item">Snowflake</div>
+      <div class="stack-item">MetricFlow</div>
+      <div class="stack-item">dbt_utils</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-cat">orchestration</div>
+      <div class="stack-item">dbt Cloud Jobs</div>
+      <div class="stack-item">GitHub Actions</div>
+      <div class="stack-item">Snowpipe</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-cat">ML & AI</div>
+      <div class="stack-item">Snowpark Python</div>
+      <div class="stack-item">Isolation Forest</div>
+      <div class="stack-item">KMeans Segmentation</div>
+      <div class="stack-item">Claude API (agent)</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-cat">data quality</div>
+      <div class="stack-item">290 dbt tests</div>
+      <div class="stack-item">Custom assert tests</div>
+      <div class="stack-item">Source freshness SLAs</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-cat">visualization</div>
+      <div class="stack-item">Sigma BI</div>
+      <div class="stack-item">Power BI</div>
+      <div class="stack-item">dbt Docs lineage</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-cat">infrastructure</div>
+      <div class="stack-item">Snowflake (CUSTOMER_PLATFORM)</div>
+      <div class="stack-item">Dev + Prod environments</div>
+      <div class="stack-item">GitHub (version control)</div>
+    </div>
+  </div>
+
+  <div class="links">
+    <a class="link-btn" href="https://github.com/sriramsripada20s/customer-360-snowflake-dbt" target="_blank">GitHub repo</a>
+    <a class="link-btn" href="https://www.linkedin.com/in/sriram-sripada" target="_blank">LinkedIn</a>
+  </div>
+
+</div>
+
+<footer>
+  Built by Sriram Sripada · Analytics Engineer · dbt + Snowflake + Python
+</footer>
+
+</body>
+</html>
