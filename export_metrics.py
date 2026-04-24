@@ -49,7 +49,8 @@ def build_metrics():
     m['avg_order_value']             = scalar("SELECT ROUND(AVG(AVG_ORDER_VALUE)) FROM FCT_CUSTOMER_VALUE WHERE AVG_ORDER_VALUE > 0")
     m['revenue_per_active_customer'] = scalar("SELECT ROUND(SUM(TOTAL_REVENUE)/NULLIF(COUNT(CASE WHEN IS_ACTIVE=TRUE THEN 1 END),0),1) FROM FCT_CUSTOMER_VALUE")
     m['avg_customer_value_score']    = scalar("SELECT ROUND(AVG(CUSTOMER_VALUE_SCORE),1) FROM FCT_CUSTOMER_VALUE")
-    m['high_risk_customer_count']    = scalar("SELECT COUNT(*) FROM FCT_CUSTOMER_VALUE WHERE RISK_TIER = 'high'")
+    m['high_risk_customer_count'] = scalar("SELECT COUNT(*) FROM FCT_CUSTOMER_VALUE WHERE RISK_TIER = 'MEDIUM'")
+
     m['avg_churn_risk_score']        = scalar("SELECT ROUND(AVG(CHURN_RISK_SCORE),1) FROM FCT_CUSTOMER_VALUE")
     m['avg_failed_txn_rate']         = scalar("SELECT ROUND(AVG(FAILED_TXN_RATE),3) FROM FCT_CUSTOMER_VALUE WHERE FAILED_TXN_RATE IS NOT NULL")
     m['avg_chargeback_rate']         = scalar("SELECT ROUND(AVG(CHARGEBACK_RATE),3) FROM FCT_CUSTOMER_VALUE WHERE CHARGEBACK_RATE IS NOT NULL")
@@ -74,7 +75,7 @@ def build_metrics():
     m['churn_rate_by_acquisition_channel'] = breakdown(cur,
         "SELECT ACQUISITION_CHANNEL, ROUND(AVG(CASE WHEN IS_ACTIVE=FALSE THEN 1.0 ELSE 0 END),3) FROM DIM_CUSTOMERS GROUP BY 1 ORDER BY 2 DESC")
     m['high_risk_by_loyalty_tier'] = breakdown(cur,
-        "SELECT LOYALTY_TIER, COUNT(*) FROM FCT_CUSTOMER_VALUE WHERE RISK_TIER='high' GROUP BY 1 ORDER BY 2 DESC")
+    "SELECT LOYALTY_TIER, COUNT(*) FROM FCT_CUSTOMER_VALUE WHERE RISK_TIER='MEDIUM' GROUP BY 1 ORDER BY 2 DESC")
     m['avg_churn_risk_score_by_loyalty_tier'] = breakdown(cur,
         "SELECT LOYALTY_TIER, ROUND(AVG(CHURN_RISK_SCORE),1) FROM FCT_CUSTOMER_VALUE GROUP BY 1 ORDER BY 2 DESC")
     m['avg_email_open_rate_by_loyalty_tier'] = breakdown(cur,
