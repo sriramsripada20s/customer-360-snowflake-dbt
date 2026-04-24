@@ -1,0 +1,88 @@
+{
+  "updated_at": "2026-04-23 06:00 UTC",
+  "total_customers": 50000,
+  "active_customers": 32400,
+  "churn_rate": 0.083,
+  "total_revenue": 4200000,
+  "high_risk_customer_count": 2847,
+  "avg_order_value": 124,
+  "avg_recency_days": 18.4,
+  "revenue_last_30d": 380000,
+  "revenue_last_90d": 1100000,
+  "revenue_per_active_customer": 129.6,
+  "avg_customer_value_score": 6.8,
+  "avg_churn_risk_score": 3.2,
+  "avg_failed_txn_rate": 0.021,
+  "avg_chargeback_rate": 0.008,
+  "avg_cart_abandon_rate": 0.34,
+  "avg_email_open_rate": 0.28,
+  "avg_email_click_rate": 0.09,
+  "avg_personalization_score": 7.1,
+  "total_customers_by_loyalty_tier": [
+    {"label": "gold",   "value": 8200},
+    {"label": "silver", "value": 18300},
+    {"label": "bronze", "value": 23500}
+  ],
+  "active_customers_by_age_band": [
+    {"label": "18-24", "value": 5100},
+    {"label": "25-34", "value": 9800},
+    {"label": "35-44", "value": 8200},
+    {"label": "45-54", "value": 5900},
+    {"label": "55+",   "value": 3400}
+  ],
+  "avg_recency_days_by_loyalty_tier": [
+    {"label": "gold",   "value": 8.2},
+    {"label": "silver", "value": 16.4},
+    {"label": "bronze", "value": 28.1}
+  ],
+  "total_revenue_by_loyalty_tier": [
+    {"label": "gold",   "value": 1890000},
+    {"label": "silver", "value": 1540000},
+    {"label": "bronze", "value": 770000}
+  ],
+  "revenue_last_30d_by_age_band": [
+    {"label": "18-24", "value": 52000},
+    {"label": "25-34", "value": 118000},
+    {"label": "35-44", "value": 104000},
+    {"label": "45-54", "value": 71000},
+    {"label": "55+",   "value": 35000}
+  ],
+  "avg_order_value_by_loyalty_tier": [
+    {"label": "gold",   "value": 198},
+    {"label": "silver", "value": 124},
+    {"label": "bronze", "value": 87}
+  ],
+  "churn_rate_by_acquisition_channel": [
+    {"label": "organic",  "value": 0.062},
+    {"label": "paid",     "value": 0.091},
+    {"label": "referral", "value": 0.048},
+    {"label": "email",    "value": 0.104}
+  ],
+  "high_risk_by_loyalty_tier": [
+    {"label": "gold",   "value": 142},
+    {"label": "silver", "value": 890},
+    {"label": "bronze", "value": 1815}
+  ],
+  "avg_churn_risk_score_by_loyalty_tier": [
+    {"label": "gold",   "value": 1.8},
+    {"label": "silver", "value": 3.1},
+    {"label": "bronze", "value": 4.6}
+  ],
+  "avg_email_open_rate_by_loyalty_tier": [
+    {"label": "gold",   "value": 0.41},
+    {"label": "silver", "value": 0.29},
+    {"label": "bronze", "value": 0.18}
+  ],
+  "avg_email_click_rate_by_loyalty_tier": [
+    {"label": "gold",   "value": 0.14},
+    {"label": "silver", "value": 0.09},
+    {"label": "bronze", "value": 0.05}
+  ],
+  "avg_personalization_score_by_age_band": [
+    {"label": "18-24", "value": 6.2},
+    {"label": "25-34", "value": 7.8},
+    {"label": "35-44", "value": 7.4},
+    {"label": "45-54", "value": 6.9},
+    {"label": "55+",   "value": 5.8}
+  ]
+}

@@ -1,0 +1,41 @@
+# .github/workflows/update_metrics.yml
+# Runs after dbt Cloud prod job completes
+# Queries Snowflake once, writes docs/metrics.json, commits to main
+
+name: Update portfolio metrics
+
+on:
+  schedule:
+    - cron: '30 6 * * *'   # 6:30 AM UTC — 30 min after dbt prod job
+  workflow_dispatch:         # manual trigger for testing
+
+jobs:
+  export-metrics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install snowflake-connector-python
+
+      - name: Export metrics from Snowflake
+        env:
+          SNOWFLAKE_ACCOUNT  : ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER     : ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD : ${{ secrets.SNOWFLAKE_PASSWORD }}
+        run: python customer_360/export_metrics.py
+
+      - name: Commit updated metrics.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/metrics.json
+          git diff --cached --quiet || git commit -m "chore: update portfolio metrics $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
