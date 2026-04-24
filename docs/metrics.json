@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-24 02:28 UTC",
+  "updated_at": "2026-04-24 02:53 UTC",
   "total_customers": 50000,
   "active_customers": 47500,
   "churn_rate": 0.05,
@@ -9,7 +9,7 @@
   "avg_order_value": 250,
   "revenue_per_active_customer": 4722.2,
   "avg_customer_value_score": 26.5,
-  "high_risk_customer_count": 0,
+  "high_risk_customer_count": 11,
   "avg_churn_risk_score": 24.5,
   "avg_failed_txn_rate": 0.05,
   "avg_chargeback_rate": 0.01,
@@ -160,7 +160,16 @@
       "value": 0.0
     }
   ],
-  "high_risk_by_loyalty_tier": [],
+  "high_risk_by_loyalty_tier": [
+    {
+      "label": "bronze",
+      "value": 10.0
+    },
+    {
+      "label": "silver",
+      "value": 1.0
+    }
+  ],
   "avg_churn_risk_score_by_loyalty_tier": [
     {
       "label": "gold",
