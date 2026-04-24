@@ -3,260 +3,605 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Customer 360 — dbt + Snowflake Portfolio</title>
+<title>Customer 360 — dbt + Snowflake</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0D1117;color:#E6EDF3;line-height:1.6;}
-.hero{background:#161B22;border-bottom:1px solid #30363D;padding:48px 40px;}
-.hero h1{font-size:28px;font-weight:600;color:#E6EDF3;margin-bottom:8px;}
-.hero p{font-size:15px;color:#8B949E;max-width:600px;}
-.badges{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
-.badge{font-size:11px;padding:4px 10px;border-radius:12px;font-weight:500;}
-.b-blue{background:#1F3A5F;color:#58A6FF;}
-.b-green{background:#1A3A1A;color:#3FB950;}
-.b-purple{background:#2D1F4F;color:#BC8CFF;}
-.b-amber{background:#3A2A0A;color:#D29922;}
-.container{max-width:1100px;margin:0 auto;padding:40px;}
-.section-title{font-size:13px;font-weight:500;color:#6E7681;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:40px;}
-.stat{background:#161B22;border:1px solid #30363D;border-radius:8px;padding:16px;}
-.stat-val{font-size:26px;font-weight:600;margin-bottom:4px;}
-.stat-label{font-size:12px;color:#8B949E;}
-.green{color:#3FB950;}
-.blue{color:#58A6FF;}
-.purple{color:#BC8CFF;}
-.amber{color:#D29922;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px;}
-.card{background:#161B22;border:1px solid #30363D;border-radius:8px;padding:20px;}
-.card h3{font-size:13px;font-weight:500;color:#8B949E;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;}
-.pipeline-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.layer-badge{font-size:10px;padding:2px 8px;border-radius:4px;min-width:80px;text-align:center;}
-.l-raw{background:#21262D;color:#8B949E;}
-.l-stg{background:#1F3A5F;color:#58A6FF;}
-.l-int{background:#2D1F4F;color:#BC8CFF;}
-.l-mart{background:#1A3A1A;color:#3FB950;}
-.l-feat{background:#3A2A0A;color:#D29922;}
-.l-ml{background:#3A1A1A;color:#F85149;}
-.model-name{font-size:12px;color:#C9D1D9;font-family:monospace;}
-.arrow{color:#30363D;font-size:12px;}
-.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.metric-item{background:#0D1117;border:1px solid #21262D;border-radius:6px;padding:8px 12px;}
-.metric-name{font-size:12px;font-family:monospace;color:#58A6FF;margin-bottom:2px;}
-.metric-dim{font-size:10px;color:#6E7681;}
-.stack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:40px;}
-.stack-card{background:#161B22;border:1px solid #30363D;border-radius:8px;padding:14px;}
-.stack-cat{font-size:10px;color:#6E7681;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
-.stack-item{font-size:12px;color:#C9D1D9;padding:3px 0;border-bottom:1px solid #21262D;}
-.stack-item:last-child{border:none;}
-.pipeline-status{background:#161B22;border:1px solid #30363D;border-radius:8px;padding:20px;margin-bottom:40px;}
-.run-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #21262D;}
-.run-row:last-child{border:none;}
-.run-name{font-size:13px;color:#C9D1D9;}
-.run-meta{font-size:11px;color:#6E7681;}
-.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;}
-.dot-green{background:#3FB950;}
-.dot-amber{background:#D29922;}
-.links{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
-.link-btn{font-size:13px;padding:8px 16px;border-radius:6px;text-decoration:none;border:1px solid #30363D;color:#C9D1D9;background:#161B22;}
-.link-btn:hover{border-color:#58A6FF;color:#58A6FF;}
-footer{text-align:center;padding:32px;color:#6E7681;font-size:12px;border-top:1px solid #21262D;}
+:root {
+  --bg: #080C10;
+  --surface: #0D1117;
+  --surface2: #161B22;
+  --border: #21262D;
+  --border2: #30363D;
+  --text: #E6EDF3;
+  --muted: #8B949E;
+  --dim: #484F58;
+  --green: #3FB950;
+  --blue: #58A6FF;
+  --purple: #BC8CFF;
+  --amber: #D29922;
+  --red: #F85149;
+  --teal: #39D353;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'IBM Plex Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* hero */
+.hero { padding:48px 48px 40px; border-bottom:1px solid var(--border); position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:-80px; right:-80px; width:400px; height:400px; background:radial-gradient(circle, #58A6FF08 0%, transparent 70%); pointer-events:none; }
+.hero-top { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+.hero-left h1 { font-size:26px; font-weight:600; letter-spacing:-0.5px; margin-bottom:6px; }
+.hero-left p { font-size:14px; color:var(--muted); max-width:520px; line-height:1.6; }
+.badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:14px; }
+.badge { font-size:11px; font-family:'IBM Plex Mono',monospace; padding:3px 10px; border-radius:3px; border:1px solid; }
+.b-blue { border-color:#58A6FF44; color:var(--blue); background:#58A6FF0A; }
+.b-green { border-color:#3FB95044; color:var(--green); background:#3FB9500A; }
+.b-purple { border-color:#BC8CFF44; color:var(--purple); background:#BC8CFF0A; }
+.b-amber { border-color:#D2992244; color:var(--amber); background:#D299220A; }
+.hero-right { display:flex; gap:8px; align-items:center; }
+.url-chip { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); background:var(--surface2); border:1px solid var(--border2); padding:6px 12px; border-radius:4px; }
+.last-updated { font-size:11px; color:var(--dim); font-family:'IBM Plex Mono',monospace; }
+
+/* kpi strip */
+.kpi-strip { display:grid; grid-template-columns:repeat(6,1fr); border-bottom:1px solid var(--border); }
+.kpi { padding:20px 24px; border-right:1px solid var(--border); }
+.kpi:last-child { border-right:none; }
+.kpi-val { font-size:24px; font-weight:600; font-family:'IBM Plex Mono',monospace; letter-spacing:-1px; margin-bottom:4px; }
+.kpi-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; }
+.kpi-delta { font-size:10px; font-family:'IBM Plex Mono',monospace; margin-top:3px; }
+.up { color:var(--green); }
+.down { color:var(--red); }
+
+/* main layout */
+.main { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - 280px); }
+.sidebar { border-right:1px solid var(--border); padding:24px 0; }
+.sidebar-section { margin-bottom:24px; }
+.sidebar-label { font-size:10px; color:var(--dim); text-transform:uppercase; letter-spacing:0.8px; padding:0 16px; margin-bottom:8px; }
+.nav-item { display:flex; align-items:center; gap:8px; padding:7px 16px; font-size:13px; color:var(--muted); cursor:pointer; border-left:2px solid transparent; transition:all 0.15s; }
+.nav-item:hover { color:var(--text); background:var(--surface2); }
+.nav-item.active { color:var(--text); border-left-color:var(--blue); background:#58A6FF08; }
+.nav-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+
+/* content */
+.content { padding:28px 32px; }
+.tab-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+.tab-title { font-size:16px; font-weight:500; }
+.tab-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+.refresh-badge { font-size:10px; font-family:'IBM Plex Mono',monospace; color:var(--green); border:1px solid #3FB95033; padding:3px 8px; border-radius:3px; background:#3FB9500A; }
+
+/* metric cards grid */
+.metric-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+.metric-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px; }
+.metric-card:hover { border-color:var(--border2); }
+.mc-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; font-family:'IBM Plex Mono',monospace; }
+.mc-val { font-size:22px; font-weight:600; font-family:'IBM Plex Mono',monospace; letter-spacing:-0.5px; margin-bottom:8px; }
+.mc-bars { display:flex; flex-direction:column; gap:4px; }
+.bar-row { display:flex; align-items:center; gap:8px; }
+.bar-label { font-size:10px; color:var(--muted); min-width:60px; font-family:'IBM Plex Mono',monospace; }
+.bar-track { flex:1; height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:2px; transition:width 1s ease; }
+.bar-num { font-size:10px; color:var(--dim); font-family:'IBM Plex Mono',monospace; min-width:36px; text-align:right; }
+
+/* pipeline section */
+.pipeline-section { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:20px; margin-bottom:16px; }
+.pipeline-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
+.pipeline-row:last-child { border:none; padding-bottom:0; }
+.pr-left { display:flex; align-items:center; gap:10px; }
+.pr-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.pr-name { font-size:13px; color:var(--text); }
+.pr-meta { font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-top:2px; }
+.pr-status { font-size:11px; font-family:'IBM Plex Mono',monospace; padding:3px 8px; border-radius:3px; }
+.s-live { color:var(--green); background:#3FB9500A; border:1px solid #3FB95033; }
+.s-soon { color:var(--amber); background:#D299220A; border:1px solid #D2992233; }
+
+/* lineage */
+.lineage-flow { display:flex; flex-direction:column; gap:6px; }
+.lineage-row { display:flex; align-items:center; gap:12px; }
+.layer-chip { font-size:10px; font-family:'IBM Plex Mono',monospace; padding:3px 10px; border-radius:3px; min-width:90px; text-align:center; border:1px solid; }
+.lc-raw { border-color:var(--border2); color:var(--muted); background:var(--surface2); }
+.lc-stg { border-color:#58A6FF44; color:var(--blue); background:#58A6FF08; }
+.lc-int { border-color:#BC8CFF44; color:var(--purple); background:#BC8CFF08; }
+.lc-mart { border-color:#3FB95044; color:var(--green); background:#3FB9500A; }
+.lc-feat { border-color:#D2992244; color:var(--amber); background:#D299220A; }
+.lc-ml { border-color:#F8514944; color:var(--red); background:#F851490A; }
+.lineage-arrow { color:var(--border2); font-size:12px; }
+.lineage-models { font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace; }
+
+/* stack */
+.stack-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.stack-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px; }
+.stack-cat { font-size:10px; color:var(--dim); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; }
+.stack-item { font-size:12px; color:var(--muted); padding:4px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:6px; }
+.stack-item:last-child { border:none; }
+.stack-dot { width:4px; height:4px; border-radius:50%; background:var(--border2); flex-shrink:0; }
+
+footer { padding:24px 48px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+footer p { font-size:12px; color:var(--dim); font-family:'IBM Plex Mono',monospace; }
+.footer-links { display:flex; gap:16px; }
+.footer-links a { font-size:12px; color:var(--muted); text-decoration:none; font-family:'IBM Plex Mono',monospace; }
+.footer-links a:hover { color:var(--blue); }
+
+.hidden { display:none; }
 </style>
 </head>
 <body>
 
 <div class="hero">
-  <h1>Customer 360 — dbt + Snowflake</h1>
-  <p>End-to-end analytics engineering portfolio project. Medallion architecture processing 750K+ daily transactions with MetricFlow semantic layer and automated CI/CD.</p>
-  <div class="badges">
-    <span class="badge b-blue">dbt Cloud</span>
-    <span class="badge b-blue">Snowflake</span>
-    <span class="badge b-green">290 tests passing</span>
-    <span class="badge b-purple">MetricFlow</span>
-    <span class="badge b-amber">GitHub Actions</span>
-    <span class="badge b-green">Production live</span>
+  <div class="hero-top">
+    <div class="hero-left">
+      <h1>Customer 360 — dbt + Snowflake</h1>
+      <p>End-to-end analytics engineering platform processing 750K+ daily transactions with medallion architecture, MetricFlow semantic layer, and automated CI/CD.</p>
+      <div class="badges">
+        <span class="badge b-blue">dbt Cloud</span>
+        <span class="badge b-blue">Snowflake</span>
+        <span class="badge b-green">290 tests passing</span>
+        <span class="badge b-purple">MetricFlow</span>
+        <span class="badge b-amber">GitHub Actions</span>
+        <span class="badge b-green">Production live</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div>
+        <div class="url-chip">sriramsripada20s.github.io/customer-360-snowflake-dbt</div>
+        <div class="last-updated" id="last-updated" style="margin-top:6px;text-align:right;">metrics updated: loading...</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="container">
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-val" style="color:var(--blue)" id="kpi-total-customers">—</div>
+    <div class="kpi-label">total customers</div>
+    <div class="kpi-delta up" id="kpi-active-pct">—</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val" style="color:var(--green)" id="kpi-active-customers">—</div>
+    <div class="kpi-label">active customers</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val" style="color:var(--amber)" id="kpi-churn-rate">—</div>
+    <div class="kpi-label">churn rate</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val" style="color:var(--purple)" id="kpi-total-revenue">—</div>
+    <div class="kpi-label">total revenue</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val" style="color:var(--red)" id="kpi-high-risk">—</div>
+    <div class="kpi-label">high risk customers</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val" style="color:var(--teal)" id="kpi-aov">—</div>
+    <div class="kpi-label">avg order value</div>
+  </div>
+</div>
 
-  <div class="section-title">pipeline overview</div>
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-val green">290</div>
-      <div class="stat-label">tests passing</div>
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">metrics</div>
+      <div class="nav-item active" onclick="showTab('customer')">
+        <span class="nav-dot" style="background:var(--blue)"></span>Customer
+      </div>
+      <div class="nav-item" onclick="showTab('revenue')">
+        <span class="nav-dot" style="background:var(--purple)"></span>Revenue
+      </div>
+      <div class="nav-item" onclick="showTab('risk')">
+        <span class="nav-dot" style="background:var(--red)"></span>Risk & Fraud
+      </div>
+      <div class="nav-item" onclick="showTab('engagement')">
+        <span class="nav-dot" style="background:var(--amber)"></span>Engagement
+      </div>
     </div>
-    <div class="stat">
-      <div class="stat-val blue">750K</div>
-      <div class="stat-label">transactions processed</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val purple">18</div>
-      <div class="stat-label">MetricFlow metrics</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val amber">6 AM UTC</div>
-      <div class="stat-label">daily prod refresh</div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">project</div>
+      <div class="nav-item" onclick="showTab('pipeline')">
+        <span class="nav-dot" style="background:var(--green)"></span>Pipeline status
+      </div>
+      <div class="nav-item" onclick="showTab('lineage')">
+        <span class="nav-dot" style="background:var(--teal)"></span>Data lineage
+      </div>
+      <div class="nav-item" onclick="showTab('stack')">
+        <span class="nav-dot" style="background:var(--muted)"></span>Tech stack
+      </div>
     </div>
   </div>
 
-  <div class="two-col">
-    <div class="card">
-      <h3>data lineage</h3>
-      <div class="pipeline-row">
-        <span class="layer-badge l-raw">raw</span>
-        <span class="arrow">→</span>
-        <span class="model-name">raw_customers, raw_transactions...</span>
-      </div>
-      <div class="pipeline-row">
-        <span class="layer-badge l-stg">staging</span>
-        <span class="arrow">→</span>
-        <span class="model-name">stg_customers, stg_orders...</span>
-      </div>
-      <div class="pipeline-row">
-        <span class="layer-badge l-int">intermediate</span>
-        <span class="arrow">→</span>
-        <span class="model-name">int_customer_transactions...</span>
-      </div>
-      <div class="pipeline-row">
-        <span class="layer-badge l-mart">marts</span>
-        <span class="arrow">→</span>
-        <span class="model-name">dim_customers, fct_orders...</span>
-      </div>
-      <div class="pipeline-row">
-        <span class="layer-badge l-feat">features</span>
-        <span class="arrow">→</span>
-        <span class="model-name">feat_fraud_behavior...</span>
-      </div>
-      <div class="pipeline-row">
-        <span class="layer-badge l-ml">ML / BI</span>
-        <span class="arrow">→</span>
-        <span class="model-name">Snowpark, Sigma, MetricFlow</span>
-      </div>
-    </div>
+  <div class="content">
 
-    <div class="card">
-      <h3>MetricFlow semantic layer</h3>
+    <!-- CUSTOMER TAB -->
+    <div id="tab-customer">
+      <div class="tab-header">
+        <div>
+          <div class="tab-title">Customer metrics</div>
+          <div class="tab-sub">Segmentation, lifecycle, and value metrics</div>
+        </div>
+        <span class="refresh-badge">updated daily 6 AM UTC</span>
+      </div>
       <div class="metric-grid">
-        <div class="metric-item">
-          <div class="metric-name">total_customers</div>
-          <div class="metric-dim">by loyalty_tier, age_band</div>
+        <div class="metric-card">
+          <div class="mc-label">total_customers by loyalty_tier</div>
+          <div class="mc-val" id="mc-total-customers">—</div>
+          <div class="mc-bars" id="bars-loyalty"></div>
         </div>
-        <div class="metric-item">
-          <div class="metric-name">churn_rate</div>
-          <div class="metric-dim">by acquisition_channel</div>
+        <div class="metric-card">
+          <div class="mc-label">active_customers by age_band</div>
+          <div class="mc-val" id="mc-active-customers">—</div>
+          <div class="mc-bars" id="bars-age"></div>
         </div>
-        <div class="metric-item">
-          <div class="metric-name">total_revenue</div>
-          <div class="metric-dim">by loyalty_tier, region</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-name">revenue_last_30d</div>
-          <div class="metric-dim">by age_band</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-name">avg_order_value</div>
-          <div class="metric-dim">by loyalty_tier</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-name">high_risk_customer_count</div>
-          <div class="metric-dim">by acquisition_channel</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-name">avg_churn_risk_score</div>
-          <div class="metric-dim">by loyalty_tier</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-name">avg_personalization_score</div>
-          <div class="metric-dim">by age_band</div>
+        <div class="metric-card">
+          <div class="mc-label">avg_recency_days by loyalty_tier</div>
+          <div class="mc-val" id="mc-recency">—</div>
+          <div class="mc-bars" id="bars-recency"></div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="section-title">pipeline status</div>
-  <div class="pipeline-status">
-    <div class="run-row">
-      <div>
-        <div class="run-name"><span class="status-dot dot-green"></span>Daily Pipeline Refresh — Production</div>
-        <div class="run-meta">dbt build · 290 passing · 0 errors · runs 6 AM UTC daily</div>
+    <!-- REVENUE TAB -->
+    <div id="tab-revenue" class="hidden">
+      <div class="tab-header">
+        <div>
+          <div class="tab-title">Revenue metrics</div>
+          <div class="tab-sub">Revenue, order value, and customer value</div>
+        </div>
+        <span class="refresh-badge">updated daily 6 AM UTC</span>
       </div>
-      <div style="font-size:12px;color:#3FB950;">live</div>
-    </div>
-    <div class="run-row">
-      <div>
-        <div class="run-name"><span class="status-dot dot-green"></span>CI/CD — Pull Request Validation</div>
-        <div class="run-meta">GitHub Actions · dbt build on every PR to main</div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="mc-label">total_revenue by loyalty_tier</div>
+          <div class="mc-val" id="mc-total-revenue">—</div>
+          <div class="mc-bars" id="bars-revenue-loyalty"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">revenue_last_30d by age_band</div>
+          <div class="mc-val" id="mc-rev30">—</div>
+          <div class="mc-bars" id="bars-rev30"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">avg_order_value by loyalty_tier</div>
+          <div class="mc-val" id="mc-aov">—</div>
+          <div class="mc-bars" id="bars-aov"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">revenue_last_90d</div>
+          <div class="mc-val" id="mc-rev90">—</div>
+          <div class="mc-bars" id="bars-rev90"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">revenue_per_active_customer</div>
+          <div class="mc-val" id="mc-rev-per-customer">—</div>
+          <div class="mc-bars" id="bars-rev-per-customer"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">avg_customer_value_score</div>
+          <div class="mc-val" id="mc-cvs">—</div>
+          <div class="mc-bars" id="bars-cvs"></div>
+        </div>
       </div>
-      <div style="font-size:12px;color:#3FB950;">active</div>
     </div>
-    <div class="run-row">
-      <div>
-        <div class="run-name"><span class="status-dot dot-green"></span>MetricFlow Semantic Layer</div>
-        <div class="run-meta">18 metrics · 5 dimensions · queryable from any BI tool</div>
-      </div>
-      <div style="font-size:12px;color:#3FB950;">active</div>
-    </div>
-    <div class="run-row">
-      <div>
-        <div class="run-name"><span class="status-dot dot-amber"></span>Self-healing Agent</div>
-        <div class="run-meta">ReAct diagnostic agent · Claude API · coming soon</div>
-      </div>
-      <div style="font-size:12px;color:#D29922;">in progress</div>
-    </div>
-  </div>
 
-  <div class="section-title">tech stack</div>
-  <div class="stack-grid">
-    <div class="stack-card">
-      <div class="stack-cat">transformation</div>
-      <div class="stack-item">dbt Cloud</div>
-      <div class="stack-item">Snowflake</div>
-      <div class="stack-item">MetricFlow</div>
-      <div class="stack-item">dbt_utils</div>
+    <!-- RISK TAB -->
+    <div id="tab-risk" class="hidden">
+      <div class="tab-header">
+        <div>
+          <div class="tab-title">Risk & fraud metrics</div>
+          <div class="tab-sub">Churn risk, fraud signals, and transaction health</div>
+        </div>
+        <span class="refresh-badge">updated daily 6 AM UTC</span>
+      </div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="mc-label">churn_rate by acquisition_channel</div>
+          <div class="mc-val" id="mc-churn">—</div>
+          <div class="mc-bars" id="bars-churn"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">high_risk_customer_count</div>
+          <div class="mc-val" id="mc-high-risk">—</div>
+          <div class="mc-bars" id="bars-high-risk"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">avg_churn_risk_score by loyalty_tier</div>
+          <div class="mc-val" id="mc-churn-score">—</div>
+          <div class="mc-bars" id="bars-churn-score"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">avg_failed_txn_rate</div>
+          <div class="mc-val" id="mc-failed-txn">—</div>
+          <div class="mc-bars" id="bars-failed-txn"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">avg_chargeback_rate</div>
+          <div class="mc-val" id="mc-chargeback">—</div>
+          <div class="mc-bars" id="bars-chargeback"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">avg_cart_abandon_rate</div>
+          <div class="mc-val" id="mc-cart-abandon">—</div>
+          <div class="mc-bars" id="bars-cart-abandon"></div>
+        </div>
+      </div>
     </div>
-    <div class="stack-card">
-      <div class="stack-cat">orchestration</div>
-      <div class="stack-item">dbt Cloud Jobs</div>
-      <div class="stack-item">GitHub Actions</div>
-      <div class="stack-item">Snowpipe</div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-cat">ML & AI</div>
-      <div class="stack-item">Snowpark Python</div>
-      <div class="stack-item">Isolation Forest</div>
-      <div class="stack-item">KMeans Segmentation</div>
-      <div class="stack-item">Claude API (agent)</div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-cat">data quality</div>
-      <div class="stack-item">290 dbt tests</div>
-      <div class="stack-item">Custom assert tests</div>
-      <div class="stack-item">Source freshness SLAs</div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-cat">visualization</div>
-      <div class="stack-item">Sigma BI</div>
-      <div class="stack-item">Power BI</div>
-      <div class="stack-item">dbt Docs lineage</div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-cat">infrastructure</div>
-      <div class="stack-item">Snowflake (CUSTOMER_PLATFORM)</div>
-      <div class="stack-item">Dev + Prod environments</div>
-      <div class="stack-item">GitHub (version control)</div>
-    </div>
-  </div>
 
-  <div class="links">
-    <a class="link-btn" href="https://github.com/sriramsripada20s/customer-360-snowflake-dbt" target="_blank">GitHub repo</a>
-    <a class="link-btn" href="https://www.linkedin.com/in/sriram-sripada" target="_blank">LinkedIn</a>
-  </div>
+    <!-- ENGAGEMENT TAB -->
+    <div id="tab-engagement" class="hidden">
+      <div class="tab-header">
+        <div>
+          <div class="tab-title">Engagement metrics</div>
+          <div class="tab-sub">Email, personalization, and campaign performance</div>
+        </div>
+        <span class="refresh-badge">updated daily 6 AM UTC</span>
+      </div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="mc-label">avg_email_open_rate by loyalty_tier</div>
+          <div class="mc-val" id="mc-email-open">—</div>
+          <div class="mc-bars" id="bars-email-open"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">avg_email_click_rate by loyalty_tier</div>
+          <div class="mc-val" id="mc-email-click">—</div>
+          <div class="mc-bars" id="bars-email-click"></div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">avg_personalization_score by age_band</div>
+          <div class="mc-val" id="mc-personalization">—</div>
+          <div class="mc-bars" id="bars-personalization"></div>
+        </div>
+      </div>
+    </div>
 
+    <!-- PIPELINE TAB -->
+    <div id="tab-pipeline" class="hidden">
+      <div class="tab-header">
+        <div>
+          <div class="tab-title">Pipeline status</div>
+          <div class="tab-sub">Production jobs, CI/CD, and environment health</div>
+        </div>
+      </div>
+      <div class="pipeline-section">
+        <div class="pipeline-row">
+          <div class="pr-left">
+            <div class="pr-dot" style="background:var(--green)"></div>
+            <div>
+              <div class="pr-name">Daily Pipeline Refresh — Production</div>
+              <div class="pr-meta">dbt build · 290 passing · 0 errors · 6 AM UTC daily</div>
+            </div>
+          </div>
+          <span class="pr-status s-live">live</span>
+        </div>
+        <div class="pipeline-row">
+          <div class="pr-left">
+            <div class="pr-dot" style="background:var(--green)"></div>
+            <div>
+              <div class="pr-name">CI/CD — Pull Request Validation</div>
+              <div class="pr-meta">GitHub Actions · dbt compile + build on every PR to main</div>
+            </div>
+          </div>
+          <span class="pr-status s-live">active</span>
+        </div>
+        <div class="pipeline-row">
+          <div class="pr-left">
+            <div class="pr-dot" style="background:var(--green)"></div>
+            <div>
+              <div class="pr-name">MetricFlow Semantic Layer</div>
+              <div class="pr-meta">18 metrics · 5 dimensions · queryable from any BI tool</div>
+            </div>
+          </div>
+          <span class="pr-status s-live">active</span>
+        </div>
+        <div class="pipeline-row">
+          <div class="pr-left">
+            <div class="pr-dot" style="background:var(--amber)"></div>
+            <div>
+              <div class="pr-name">Self-healing Agent</div>
+              <div class="pr-meta">ReAct diagnostic agent · Claude API · dbt artifact parsing</div>
+            </div>
+          </div>
+          <span class="pr-status s-soon">in progress</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINEAGE TAB -->
+    <div id="tab-lineage" class="hidden">
+      <div class="tab-header">
+        <div>
+          <div class="tab-title">Data lineage</div>
+          <div class="tab-sub">Raw sources through to ML pipelines and BI tools</div>
+        </div>
+      </div>
+      <div class="pipeline-section">
+        <div class="lineage-flow">
+          <div class="lineage-row">
+            <span class="layer-chip lc-raw">raw</span>
+            <span class="lineage-arrow">→</span>
+            <span class="lineage-models">raw_customers, raw_orders, raw_transactions, raw_events, raw_campaigns, raw_products</span>
+          </div>
+          <div class="lineage-row">
+            <span class="layer-chip lc-stg">staging</span>
+            <span class="lineage-arrow">→</span>
+            <span class="lineage-models">stg_customers, stg_orders, stg_order_items, stg_transactions, stg_events, stg_campaigns, stg_products</span>
+          </div>
+          <div class="lineage-row">
+            <span class="layer-chip lc-int">intermediate</span>
+            <span class="lineage-arrow">→</span>
+            <span class="lineage-models">int_customer_orders, int_customer_transactions, int_customer_fraud_signals, int_session_features, int_product_affinity</span>
+          </div>
+          <div class="lineage-row">
+            <span class="layer-chip lc-mart">marts</span>
+            <span class="lineage-arrow">→</span>
+            <span class="lineage-models">dim_customers, fct_orders, fct_transactions, fct_campaigns, fct_customer_value</span>
+          </div>
+          <div class="lineage-row">
+            <span class="layer-chip lc-feat">features</span>
+            <span class="lineage-arrow">→</span>
+            <span class="lineage-models">feat_fraud_behavior, feat_customer_segmentation, feat_personalization</span>
+          </div>
+          <div class="lineage-row">
+            <span class="layer-chip lc-ml">ML / BI</span>
+            <span class="lineage-arrow">→</span>
+            <span class="lineage-models">Snowpark KMeans, Isolation Forest, Sigma dashboards, MetricFlow, Power BI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STACK TAB -->
+    <div id="tab-stack" class="hidden">
+      <div class="tab-header">
+        <div>
+          <div class="tab-title">Tech stack</div>
+          <div class="tab-sub">Full technology breakdown</div>
+        </div>
+      </div>
+      <div class="stack-grid">
+        <div class="stack-card">
+          <div class="stack-cat">transformation</div>
+          <div class="stack-item"><span class="stack-dot"></span>dbt Cloud</div>
+          <div class="stack-item"><span class="stack-dot"></span>Snowflake</div>
+          <div class="stack-item"><span class="stack-dot"></span>MetricFlow semantic layer</div>
+          <div class="stack-item"><span class="stack-dot"></span>dbt_utils, dbt_expectations</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-cat">orchestration</div>
+          <div class="stack-item"><span class="stack-dot"></span>dbt Cloud Jobs (6 AM UTC)</div>
+          <div class="stack-item"><span class="stack-dot"></span>GitHub Actions CI/CD</div>
+          <div class="stack-item"><span class="stack-dot"></span>Snowpipe streaming</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-cat">ML & AI</div>
+          <div class="stack-item"><span class="stack-dot"></span>Snowpark Python</div>
+          <div class="stack-item"><span class="stack-dot"></span>Isolation Forest (fraud)</div>
+          <div class="stack-item"><span class="stack-dot"></span>KMeans segmentation</div>
+          <div class="stack-item"><span class="stack-dot"></span>Claude API (agent)</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-cat">data quality</div>
+          <div class="stack-item"><span class="stack-dot"></span>290 dbt tests</div>
+          <div class="stack-item"><span class="stack-dot"></span>Custom assert macros</div>
+          <div class="stack-item"><span class="stack-dot"></span>Source freshness SLAs</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-cat">visualization</div>
+          <div class="stack-item"><span class="stack-dot"></span>Sigma BI</div>
+          <div class="stack-item"><span class="stack-dot"></span>Power BI</div>
+          <div class="stack-item"><span class="stack-dot"></span>dbt Docs lineage DAG</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-cat">infrastructure</div>
+          <div class="stack-item"><span class="stack-dot"></span>CUSTOMER_PLATFORM (Snowflake)</div>
+          <div class="stack-item"><span class="stack-dot"></span>Dev + Prod environments</div>
+          <div class="stack-item"><span class="stack-dot"></span>GitHub (version control)</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <footer>
-  Built by Sriram Sripada · Analytics Engineer · dbt + Snowflake + Python
+  <p>Sriram Sripada · Analytics Engineer · dbt + Snowflake + Python</p>
+  <div class="footer-links">
+    <a href="https://github.com/sriramsripada20s/customer-360-snowflake-dbt" target="_blank">github</a>
+    <a href="https://www.linkedin.com/in/sriram-sripada" target="_blank">linkedin</a>
+  </div>
 </footer>
 
+<script>
+function showTab(name) {
+  ['customer','revenue','risk','engagement','pipeline','lineage','stack'].forEach(t => {
+    document.getElementById('tab-'+t).classList.add('hidden');
+  });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.remove('hidden');
+  event.currentTarget.classList.add('active');
+}
+
+function fmt(n, type) {
+  if (n === null || n === undefined) return '—';
+  if (type === 'pct') return (n*100).toFixed(1)+'%';
+  if (type === 'currency') return '$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+  if (type === 'number') return Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+  if (type === 'score') return Number(n).toFixed(1);
+  if (type === 'days') return Number(n).toFixed(0)+'d';
+  return n;
+}
+
+function renderBars(containerId, data, color, type) {
+  const el = document.getElementById(containerId);
+  if (!el || !data || !data.length) return;
+  const max = Math.max(...data.map(d => d.value));
+  el.innerHTML = data.map(d => `
+    <div class="bar-row">
+      <span class="bar-label">${d.label}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(d.value/max*100)}%;background:${color}"></div></div>
+      <span class="bar-num">${fmt(d.value, type)}</span>
+    </div>`).join('');
+}
+
+function loadMetrics() {
+  fetch('metrics.json?v='+Date.now())
+    .then(r => r.json())
+    .then(m => {
+      document.getElementById('last-updated').textContent = 'metrics updated: '+m.updated_at;
+
+      // KPI strip
+      document.getElementById('kpi-total-customers').textContent = fmt(m.total_customers, 'number');
+      document.getElementById('kpi-active-customers').textContent = fmt(m.active_customers, 'number');
+      document.getElementById('kpi-churn-rate').textContent = fmt(m.churn_rate, 'pct');
+      document.getElementById('kpi-total-revenue').textContent = fmt(m.total_revenue, 'currency');
+      document.getElementById('kpi-high-risk').textContent = fmt(m.high_risk_customer_count, 'number');
+      document.getElementById('kpi-aov').textContent = fmt(m.avg_order_value, 'currency');
+      if (m.total_customers && m.active_customers) {
+        const pct = ((m.active_customers/m.total_customers)*100).toFixed(0);
+        document.getElementById('kpi-active-pct').textContent = pct+'% active rate';
+      }
+
+      // Customer tab
+      document.getElementById('mc-total-customers').textContent = fmt(m.total_customers, 'number');
+      document.getElementById('mc-active-customers').textContent = fmt(m.active_customers, 'number');
+      document.getElementById('mc-recency').textContent = fmt(m.avg_recency_days, 'days');
+      renderBars('bars-loyalty', m.total_customers_by_loyalty_tier, 'var(--blue)', 'number');
+      renderBars('bars-age', m.active_customers_by_age_band, 'var(--green)', 'number');
+      renderBars('bars-recency', m.avg_recency_days_by_loyalty_tier, 'var(--muted)', 'days');
+
+      // Revenue tab
+      document.getElementById('mc-total-revenue').textContent = fmt(m.total_revenue, 'currency');
+      document.getElementById('mc-rev30').textContent = fmt(m.revenue_last_30d, 'currency');
+      document.getElementById('mc-rev90').textContent = fmt(m.revenue_last_90d, 'currency');
+      document.getElementById('mc-aov').textContent = fmt(m.avg_order_value, 'currency');
+      document.getElementById('mc-rev-per-customer').textContent = fmt(m.revenue_per_active_customer, 'currency');
+      document.getElementById('mc-cvs').textContent = fmt(m.avg_customer_value_score, 'score');
+      renderBars('bars-revenue-loyalty', m.total_revenue_by_loyalty_tier, 'var(--purple)', 'currency');
+      renderBars('bars-rev30', m.revenue_last_30d_by_age_band, 'var(--purple)', 'currency');
+      renderBars('bars-aov', m.avg_order_value_by_loyalty_tier, 'var(--teal)', 'currency');
+
+      // Risk tab
+      document.getElementById('mc-churn').textContent = fmt(m.churn_rate, 'pct');
+      document.getElementById('mc-high-risk').textContent = fmt(m.high_risk_customer_count, 'number');
+      document.getElementById('mc-churn-score').textContent = fmt(m.avg_churn_risk_score, 'score');
+      document.getElementById('mc-failed-txn').textContent = fmt(m.avg_failed_txn_rate, 'pct');
+      document.getElementById('mc-chargeback').textContent = fmt(m.avg_chargeback_rate, 'pct');
+      document.getElementById('mc-cart-abandon').textContent = fmt(m.avg_cart_abandon_rate, 'pct');
+      renderBars('bars-churn', m.churn_rate_by_acquisition_channel, 'var(--red)', 'pct');
+      renderBars('bars-high-risk', m.high_risk_by_loyalty_tier, 'var(--red)', 'number');
+      renderBars('bars-churn-score', m.avg_churn_risk_score_by_loyalty_tier, 'var(--amber)', 'score');
+
+      // Engagement tab
+      document.getElementById('mc-email-open').textContent = fmt(m.avg_email_open_rate, 'pct');
+      document.getElementById('mc-email-click').textContent = fmt(m.avg_email_click_rate, 'pct');
+      document.getElementById('mc-personalization').textContent = fmt(m.avg_personalization_score, 'score');
+      renderBars('bars-email-open', m.avg_email_open_rate_by_loyalty_tier, 'var(--amber)', 'pct');
+      renderBars('bars-email-click', m.avg_email_click_rate_by_loyalty_tier, 'var(--amber)', 'pct');
+      renderBars('bars-personalization', m.avg_personalization_score_by_age_band, 'var(--purple)', 'score');
+    })
+    .catch(() => {
+      document.getElementById('last-updated').textContent = 'metrics: not yet generated';
+    });
+}
+
+loadMetrics();
+</script>
 </body>
 </html>
