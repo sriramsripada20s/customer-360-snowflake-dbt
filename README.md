@@ -9,6 +9,9 @@
 
 **[→ Live Portfolio Dashboard](https://sriramsripada20s.github.io/customer-360-snowflake-dbt)** — real production metrics auto-updating daily from Snowflake
 
+<img width="1876" height="624" alt="image" src="https://github.com/user-attachments/assets/db3b0028-a3ee-4397-a838-842f66ae5c94" />
+
+
 ---
 
 ## The Business Problem
@@ -91,6 +94,8 @@ Automatically score every customer and transaction for suspicious behavior and s
 ## Medallion Architecture — Layer by Layer
 
 View the Entire data sources & their definition here: https://sriramsripada20s.github.io/customer-360-snowflake-dbt/customer_360_registry.html
+
+<img width="1067" height="841" alt="image" src="https://github.com/user-attachments/assets/9b284539-e44b-4760-b909-55de1e59590d" />
 
 
 ### RAW
