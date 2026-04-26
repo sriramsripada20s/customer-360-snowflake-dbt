@@ -152,6 +152,8 @@ Automatically score every customer and transaction for suspicious behavior and s
 
 ## Medallion Architecture — Layer by Layer
 
+View the Entire data sources & their definition here: https://sriramsripada20s.github.io/customer-360-snowflake-dbt/customer_360_registry.html
+
 ### RAW
 
 
