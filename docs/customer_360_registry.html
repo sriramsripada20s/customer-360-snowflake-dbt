@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer 360 — Data Model Registry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Serif+Display&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sora',sans-serif;background:#F5F3EE;color:#1A1714;min-height:100vh;}
+
+/* ── Layout ── */
+.page{max-width:1100px;margin:0 auto;padding:40px 32px;}
+
+/* ── Header ── */
+.page-header{margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #E8E6E0;}
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:#A89F8C;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;}
+.page-title{font-family:'DM Serif Display',serif;font-size:32px;color:#1A1714;line-height:1.15;margin-bottom:6px;}
+.page-desc{font-size:13px;color:#7A7469;line-height:1.7;max-width:620px;}
+.meta-row{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap;}
+.meta-chip{font-size:11px;padding:3px 10px;border-radius:3px;background:#EDE9E0;color:#7A7469;font-family:'IBM Plex Mono',monospace;}
+
+/* ── Controls ── */
+.controls{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.tabs{display:flex;border:1px solid #E8E6E0;border-radius:6px;overflow:hidden;background:#fff;}
+.tab{font-size:12px;font-weight:500;padding:8px 20px;color:#A89F8C;border-right:1px solid #E8E6E0;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.tab:last-child{border-right:none;}
+.tab.active{background:#1A1714;color:#fff;}
+.tab .cnt{font-size:10px;margin-left:5px;opacity:0.6;}
+.search-wrap{flex:1;min-width:220px;}
+.search-bar{width:100%;background:#fff;border:1px solid #E8E6E0;border-radius:6px;padding:9px 14px;font-size:12px;color:#1A1714;font-family:'Sora',sans-serif;outline:none;transition:border-color 0.15s;}
+.search-bar:focus{border-color:#A89F8C;}
+.search-bar::placeholder{color:#C8C3BA;}
+
+/* ── Panel ── */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* ── Layer intro ── */
+.layer-intro{background:#fff;border:1px solid #E8E6E0;border-radius:8px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:16px;}
+.layer-pill{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:4px 12px;border-radius:3px;white-space:nowrap;font-family:'IBM Plex Mono',monospace;}
+.lp-stg{background:#EAF3DE;color:#3B6D11;}
+.lp-int{background:#EEEDFE;color:#3C3489;}
+.lp-mart{background:#E6F1FB;color:#185FA5;}
+.layer-desc{font-size:12px;color:#7A7469;line-height:1.6;}
+
+/* ── Card ── */
+.card{background:#fff;border:1px solid #E8E6E0;border-radius:8px;margin-bottom:7px;overflow:hidden;transition:box-shadow 0.15s;}
+.card:hover{box-shadow:0 2px 12px rgba(26,23,20,0.06);}
+.card-header{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;}
+.card-header:hover{background:#FAFAF8;}
+.accent{width:3px;height:36px;border-radius:2px;flex-shrink:0;}
+.cname{font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace;flex:0 0 220px;color:#1A1714;}
+.ctagline{font-size:12px;color:#7A7469;flex:1;}
+.badges{display:flex;gap:5px;align-items:center;flex-shrink:0;}
+.badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:3px;white-space:nowrap;}
+.bg{background:#F0EDE6;color:#A89F8C;}
+.bgreen{background:#EAF3DE;color:#3B6D11;}
+.bblue{background:#E6F1FB;color:#185FA5;}
+.bpurple{background:#EEEDFE;color:#3C3489;}
+.bcoral{background:#FAECE7;color:#993C1D;}
+.bamber{background:#FAEEDA;color:#854F0B;}
+.bpink{background:#FBEAF0;color:#72243E;}
+.chev{font-size:11px;color:#C8C3BA;transition:transform 0.18s;flex-shrink:0;margin-left:6px;}
+.chev.open{transform:rotate(90deg);}
+
+/* ── Card body ── */
+.card-body{display:none;border-top:1px solid #F0EDE6;padding:16px;}
+.card-body.open{display:block;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.full{grid-column:1/-1;}
+.iblock{background:#FAFAF8;border:1px solid #F0EDE6;border-radius:6px;padding:10px 13px;}
+.ilabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:#A89F8C;margin-bottom:5px;font-family:'IBM Plex Mono',monospace;}
+.ivalue{font-size:12px;color:#5A544C;line-height:1.6;}
+.ivalue code{font-family:'IBM Plex Mono',monospace;font-size:10px;background:#fff;padding:1px 5px;border-radius:3px;border:1px solid #E8E6E0;color:#1A1714;}
+.twopart{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:6px;}
+.tprow{background:#fff;border:1px solid #E8E6E0;border-radius:5px;padding:9px 11px;}
+.tplabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;font-family:'IBM Plex Mono',monospace;}
+.tp-proj{color:#185FA5;}
+.tp-prod{color:#3B6D11;}
+.tpval{font-size:11px;color:#7A7469;line-height:1.55;}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.pill{font-size:11px;padding:3px 10px;border-radius:3px;border:1px solid #E8E6E0;color:#7A7469;background:#fff;}
+.stitle{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:#A89F8C;margin:14px 0 7px;font-family:'IBM Plex Mono',monospace;}
+
+/* ── Column table ── */
+.ct{width:100%;border-collapse:collapse;font-size:12px;}
+.ct th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#A89F8C;padding:6px 10px;border-bottom:1px solid #E8E6E0;text-align:left;font-family:'IBM Plex Mono',monospace;background:#FAFAF8;}
+.ct td{padding:7px 10px;border-bottom:1px solid #F5F3EF;color:#7A7469;vertical-align:top;line-height:1.5;}
+.ct tr:last-child td{border-bottom:none;}
+.ct tr:hover td{background:#FAFAF8;}
+.cn{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1A1714;}
+.pk{font-size:9px;background:#FAEEDA;color:#854F0B;padding:1px 5px;border-radius:3px;font-weight:500;margin-left:4px;}
+.fk{font-size:9px;background:#E6F1FB;color:#185FA5;padding:1px 5px;border-radius:3px;font-weight:500;margin-left:4px;}
+.kyes{font-size:10px;font-weight:600;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:3px;}
+.kno{font-size:10px;background:#F0EDE6;color:#A89F8C;padding:2px 8px;border-radius:3px;}
+
+.hidden{display:none!important;}
+
+/* ── Footer ── */
+.footer{margin-top:48px;padding-top:20px;border-top:1px solid #E8E6E0;display:flex;justify-content:space-between;align-items:center;}
+.footer-left{font-size:11px;color:#A89F8C;font-family:'IBM Plex Mono',monospace;}
+.footer-right{font-size:11px;color:#A89F8C;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="eyebrow">Customer 360 Platform · dbt Project Documentation</div>
+    <div class="page-title">Data Model Registry</div>
+    <div class="page-desc">Reference documentation for all dbt layers — source systems, intermediate transformations, and mart tables. Click any model to expand full details.</div>
+    <div class="meta-row">
+      <span class="meta-chip">18 models</span>
+      <span class="meta-chip">3 layers</span>
+      <span class="meta-chip">Snowflake · dbt · Snowpark</span>
+      <span class="meta-chip">owner: sriram_sripada</span>
+      <span class="meta-chip">updated: Apr 2026</span>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('stg',this)">Staging <span class="cnt">7</span></div>
+      <div class="tab" onclick="switchTab('int',this)">Intermediate <span class="cnt">5</span></div>
+      <div class="tab" onclick="switchTab('mart',this)">Mart <span class="cnt">5</span></div>
+    </div>
+    <div class="search-wrap">
+      <input class="search-bar" placeholder="Search tables, columns, or descriptions..." oninput="filterCards(this.value)" />
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STAGING PANEL
+  ══════════════════════════════════════ -->
+  <div id="stg" class="panel active">
+    <div class="layer-intro">
+      <span class="layer-pill lp-stg">Staging Layer</span>
+      <span class="layer-desc">One model per source table. Cleans, deduplicates, and standardizes raw data. Materialized as <strong>Views</strong>. No business logic — consumed by intermediate models only.</span>
+    </div>
+
+    <!-- stg_customers -->
+    <div class="card" data-search="stg_customers customers identity kyc account signup demographics email phone country state language crm">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#1D9E75"></div>
+        <span class="cname">stg_customers</span>
+        <span class="ctagline">Core customer identity and account profile</span>
+        <div class="badges"><span class="badge bgreen">Primary Hub</span><span class="badge bg">270K rows · daily</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Source System</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Synthetic customer records generated directly in Snowflake using a Python script to simulate a real CRM export. Stored in <code>RAW.customers</code>.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">CRM / core banking platform exports a nightly flat file to S3. Snowflake Task runs COPY INTO on a daily schedule into <code>RAW.customers</code>.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why We Use It</div><div class="ivalue">Foundation of the entire data model. Every other source joins to this on <code>customer_id</code>. Provides identity, demographics, and account standing for all downstream models.</div></div>
+          <div class="iblock"><div class="ilabel">Freshness SLA · Grain</div><div class="ivalue">Daily at 02:00 UTC. Warn after 24h, error after 48h. · One row per customer. <code>customer_id</code> is unique and non-null.</div></div>
+          <div class="iblock full"><div class="ilabel">Contributes Downstream</div><div class="pills">
+            <span class="pill">Customer identity → dim_customers</span>
+            <span class="pill">KYC status → account eligibility logic</span>
+            <span class="pill">Signup date → tenure in dim_customers</span>
+            <span class="pill">Geography → fraud signals</span>
+            <span class="pill">Account status → active customer filter</span>
+            <span class="pill">Language → campaign personalization</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">customer_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>Unique customer identifier. Natural key used across all models.</td></tr>
+          <tr><td><span class="cn">first_name</span></td><td><span class="cn">varchar</span></td><td>Lowercased and trimmed. Combined with last_name → full_name in dim_customers.</td></tr>
+          <tr><td><span class="cn">last_name</span></td><td><span class="cn">varchar</span></td><td>Lowercased and trimmed.</td></tr>
+          <tr><td><span class="cn">email</span></td><td><span class="cn">varchar</span></td><td>Primary email. Unique. Used for campaign matching in stg_campaigns.</td></tr>
+          <tr><td><span class="cn">phone</span></td><td><span class="cn">varchar</span></td><td>Nullable. Not always captured at signup.</td></tr>
+          <tr><td><span class="cn">signup_date</span></td><td><span class="cn">date</span></td><td>Account creation date. Drives customer_tenure_days in dim_customers.</td></tr>
+          <tr><td><span class="cn">state</span></td><td><span class="cn">varchar</span></td><td>US state code. Used in geographic segmentation.</td></tr>
+          <tr><td><span class="cn">country</span></td><td><span class="cn">varchar</span></td><td>ISO 2-letter country code. Used in cross-border fraud signal.</td></tr>
+          <tr><td><span class="cn">kyc_status</span></td><td><span class="cn">varchar</span></td><td>pending / verified / failed / expired. Gates transaction eligibility.</td></tr>
+          <tr><td><span class="cn">account_status</span></td><td><span class="cn">varchar</span></td><td>active / suspended / closed / dormant. Filters active population in mart models.</td></tr>
+          <tr><td><span class="cn">preferred_language</span></td><td><span class="cn">varchar</span></td><td>Defaults to en. Used in campaign personalization logic.</td></tr>
+          <tr><td><span class="cn">_loaded_at</span></td><td><span class="cn">timestamp</span></td><td>Snowflake load timestamp. Used in source freshness checks.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- stg_orders -->
+    <div class="card" data-search="stg_orders orders purchase oms channel product rfm frequency monetary recency order status">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#378ADD"></div>
+        <span class="cname">stg_orders</span>
+        <span class="ctagline">Customer purchase events and order lifecycle</span>
+        <div class="badges"><span class="badge bblue">Transactional</span><span class="badge bg">1.2M rows · daily</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Source System</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Synthetic order records generated in Snowflake via Python script simulating OMS transaction output. Stored in <code>RAW.orders</code>.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">OMS (Order Management System) exports daily flat files to S3. Snowflake Task runs COPY INTO for batch loading. Incremental strategy on order_date for large volumes.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why We Use It</div><div class="ivalue">Drives the Frequency (F) and Monetary (M) dimensions of RFM scoring. Powers all purchase behavior aggregations in intermediate models and fact tables.</div></div>
+          <div class="iblock"><div class="ilabel">Freshness SLA · Grain</div><div class="ivalue">Daily at 02:00 UTC. Warn after 24h, error after 48h. · One row per order. Multiple orders per customer.</div></div>
+          <div class="iblock full"><div class="ilabel">Contributes Downstream</div><div class="pills">
+            <span class="pill">Total orders → frequency score (RFM)</span>
+            <span class="pill">Total spend → monetary score (RFM)</span>
+            <span class="pill">Last order date → recency score (RFM)</span>
+            <span class="pill">Avg order value → KPI in fct_customer_value</span>
+            <span class="pill">Channel → behavioral segmentation</span>
+            <span class="pill">Product category → int_product_affinity</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">order_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>Unique order identifier from OMS.</td></tr>
+          <tr><td><span class="cn">customer_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td>References stg_customers.customer_id.</td></tr>
+          <tr><td><span class="cn">order_date</span></td><td><span class="cn">date</span></td><td>Date order was placed. Used for recency calculation and cohort analysis.</td></tr>
+          <tr><td><span class="cn">order_status</span></td><td><span class="cn">varchar</span></td><td>completed / cancelled / pending / returned. Only completed count toward RFM.</td></tr>
+          <tr><td><span class="cn">total_amount</span></td><td><span class="cn">float</span></td><td>Gross order value in USD before refunds.</td></tr>
+          <tr><td><span class="cn">product_id</span></td><td><span class="cn">varchar</span></td><td>FK to stg_products. Used in int_product_affinity model.</td></tr>
+          <tr><td><span class="cn">quantity</span></td><td><span class="cn">int</span></td><td>Number of units ordered. Used in avg_qty_per_order feature.</td></tr>
+          <tr><td><span class="cn">channel</span></td><td><span class="cn">varchar</span></td><td>web / mobile / in-store / partner. Used in channel mix reporting.</td></tr>
+          <tr><td><span class="cn">_loaded_at</span></td><td><span class="cn">timestamp</span></td><td>Snowflake load timestamp.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- stg_transactions -->
+    <div class="card" data-search="stg_transactions payments fraud risk high risk amount currency merchant payment method velocity">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#D85A30"></div>
+        <span class="cname">stg_transactions</span>
+        <span class="ctagline">Payment-level records powering fraud detection</span>
+        <div class="badges"><span class="badge bcoral">Fraud Signals</span><span class="badge bg">5M rows · near-realtime</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Source System</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Synthetic payment records generated in Snowflake via Python script. Highest volume source — 5M+ rows. Stored in <code>RAW.transactions</code>.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Core payments ledger exports to S3 on micro-batch schedule. Snowpipe auto-ingest on S3 event notification for near-realtime loading into <code>RAW.transactions</code>.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why We Use It</div><div class="ivalue">Only source with payment-level granularity. Enables velocity checks, amount anomaly detection, failed transaction ratios, and cross-border risk signals that drive the IsolationForest fraud model.</div></div>
+          <div class="iblock"><div class="ilabel">Freshness SLA · Grain</div><div class="ivalue">Near-realtime via Snowpipe. Warn after 1h, error after 3h. · One row per payment attempt including failed and reversed transactions.</div></div>
+          <div class="iblock full"><div class="ilabel">Contributes Downstream</div><div class="pills">
+            <span class="pill">Total spend → monetary dimension</span>
+            <span class="pill">Failed txn ratio → fraud signal</span>
+            <span class="pill">Velocity (txns per day) → fraud signal</span>
+            <span class="pill">Cross-border flag → fraud signal</span>
+            <span class="pill">Payment method diversity → ML feature</span>
+            <span class="pill">is_high_risk flag → fct_transactions</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">transaction_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>Unique payment attempt identifier.</td></tr>
+          <tr><td><span class="cn">customer_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td>References stg_customers.customer_id.</td></tr>
+          <tr><td><span class="cn">order_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td>References stg_orders.order_id. Nullable — some transactions are standalone payments.</td></tr>
+          <tr><td><span class="cn">transaction_date</span></td><td><span class="cn">timestamp</span></td><td>UTC timestamp of payment attempt. Used for velocity and time-of-day risk scoring.</td></tr>
+          <tr><td><span class="cn">amount</span></td><td><span class="cn">float</span></td><td>Transaction value in local currency. Negative values = refunds.</td></tr>
+          <tr><td><span class="cn">currency</span></td><td><span class="cn">varchar</span></td><td>ISO currency code. Non-USD values used in cross-border flag.</td></tr>
+          <tr><td><span class="cn">payment_method</span></td><td><span class="cn">varchar</span></td><td>card / ach / wallet / wire. Used in payment method diversity feature.</td></tr>
+          <tr><td><span class="cn">transaction_type</span></td><td><span class="cn">varchar</span></td><td>purchase / refund / reversal / fee. Filter on purchase for spend metrics.</td></tr>
+          <tr><td><span class="cn">status</span></td><td><span class="cn">varchar</span></td><td>success / failed / pending / reversed. Failed ratio is a key fraud signal.</td></tr>
+          <tr><td><span class="cn">merchant_id</span></td><td><span class="cn">varchar</span></td><td>Merchant identifier. Used for distinct_merchants count in intermediate model.</td></tr>
+          <tr><td><span class="cn">_loaded_at</span></td><td><span class="cn">timestamp</span></td><td>Snowpipe load timestamp. Critical for near-realtime freshness SLA.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- stg_events -->
+    <div class="card" data-search="stg_events clickstream sessions engagement web mobile behavior page views device browser churn">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#7F77DD"></div>
+        <span class="cname">stg_events</span>
+        <span class="ctagline">Web and app clickstream for behavioral features</span>
+        <div class="badges"><span class="badge bpurple">Behavioral</span><span class="badge bg">8M rows · hourly</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Source System</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Synthetic clickstream events generated in Snowflake via Python script. Highest volume source by row count — 8M+ rows. Stored in <code>RAW.events</code>.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Web and mobile analytics platform batches events hourly to S3. Snowpipe auto-ingest for near-realtime loading. Partitioned by event_date for query efficiency.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why We Use It</div><div class="ivalue">Provides behavioral engagement signals that financial data cannot — session frequency, page depth, device preference, and recency of digital activity. Critical ML features for churn prediction.</div></div>
+          <div class="iblock"><div class="ilabel">Freshness SLA · Grain</div><div class="ivalue">Hourly batch. Warn after 3h, error after 6h. · One row per event action. Many events per session, many sessions per customer.</div></div>
+          <div class="iblock full"><div class="ilabel">Contributes Downstream</div><div class="pills">
+            <span class="pill">Total sessions → engagement feature</span>
+            <span class="pill">Avg session duration → churn signal</span>
+            <span class="pill">Pages per session → depth of engagement</span>
+            <span class="pill">Mobile session ratio → device preference</span>
+            <span class="pill">Days since last session → recency signal</span>
+            <span class="pill">New device flag → fraud signal</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">event_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>Unique event identifier generated by tracking platform.</td></tr>
+          <tr><td><span class="cn">customer_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td>References stg_customers. Nullable for anonymous / pre-login sessions.</td></tr>
+          <tr><td><span class="cn">session_id</span></td><td><span class="cn">varchar</span></td><td>Groups events into a single browsing session. Used to count total_sessions.</td></tr>
+          <tr><td><span class="cn">event_type</span></td><td><span class="cn">varchar</span></td><td>page_view / click / form_submit / login / logout. Filter varies by use case.</td></tr>
+          <tr><td><span class="cn">page_url</span></td><td><span class="cn">varchar</span></td><td>URL where the event occurred.</td></tr>
+          <tr><td><span class="cn">event_timestamp</span></td><td><span class="cn">timestamp</span></td><td>UTC timestamp. Used for session duration and time-of-day analysis.</td></tr>
+          <tr><td><span class="cn">device_type</span></td><td><span class="cn">varchar</span></td><td>mobile / desktop / tablet. Used for mobile_session_ratio and new_device_flag.</td></tr>
+          <tr><td><span class="cn">browser</span></td><td><span class="cn">varchar</span></td><td>Browser identifier. Secondary signal for device fingerprinting in fraud model.</td></tr>
+          <tr><td><span class="cn">_loaded_at</span></td><td><span class="cn">timestamp</span></td><td>Load timestamp.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- stg_products -->
+    <div class="card" data-search="stg_products product catalog category price sku affinity subcategory active">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#639922"></div>
+        <span class="cname">stg_products</span>
+        <span class="ctagline">Product catalog for affinity and category analysis</span>
+        <div class="badges"><span class="badge bgreen">Reference / Lookup</span><span class="badge bg">~5K rows · weekly</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Source System</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Synthetic product catalog generated in Snowflake via Python script. Small, slow-changing reference table. Stored in <code>RAW.products</code>.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Product catalog system exports weekly flat file to S3. Snowflake Task runs COPY INTO with TRUNCATE + INSERT strategy given small volume and full refreshes.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why We Use It</div><div class="ivalue">Enriches order data with product category and price. Without this source we cannot build product affinity features or understand which categories drive revenue per segment.</div></div>
+          <div class="iblock"><div class="ilabel">Freshness SLA · Grain</div><div class="ivalue">Weekly refresh. Warn after 8 days, error after 14 days. · One row per product SKU. Joined to stg_orders on product_id.</div></div>
+          <div class="iblock full"><div class="ilabel">Contributes Downstream</div><div class="pills">
+            <span class="pill">Top category → int_product_affinity</span>
+            <span class="pill">Category diversity score → ML feature</span>
+            <span class="pill">Unit price → gross margin in fct_orders</span>
+            <span class="pill">is_active → filter discontinued products</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">product_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>Unique product SKU. Joins to stg_orders.product_id.</td></tr>
+          <tr><td><span class="cn">product_name</span></td><td><span class="cn">varchar</span></td><td>Display name of the product.</td></tr>
+          <tr><td><span class="cn">category</span></td><td><span class="cn">varchar</span></td><td>Top-level product category. Primary grouping for affinity analysis.</td></tr>
+          <tr><td><span class="cn">subcategory</span></td><td><span class="cn">varchar</span></td><td>Secondary classification. Used for granular affinity scoring.</td></tr>
+          <tr><td><span class="cn">unit_price</span></td><td><span class="cn">float</span></td><td>Listed price in USD. Used to calculate gross_margin in fct_orders.</td></tr>
+          <tr><td><span class="cn">is_active</span></td><td><span class="cn">boolean</span></td><td>False = discontinued. Filter to active products for recommendation use cases.</td></tr>
+          <tr><td><span class="cn">_loaded_at</span></td><td><span class="cn">timestamp</span></td><td>Load timestamp.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- stg_campaigns -->
+    <div class="card" data-search="stg_campaigns marketing email sms push open click conversion channel campaign roi">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#D4537E"></div>
+        <span class="cname">stg_campaigns</span>
+        <span class="ctagline">Marketing outreach engagement and conversion signals</span>
+        <div class="badges"><span class="badge bpink">Marketing</span><span class="badge bg">500K rows · daily</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Source System</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Synthetic campaign send records generated in Snowflake via Python script simulating a marketing automation platform output. Stored in <code>RAW.campaigns</code>.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Marketing automation platform (email / SMS / push) exports nightly to S3. One row per campaign send per customer. Snowflake Task runs COPY INTO with incremental load on sent_at.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why We Use It</div><div class="ivalue">Provides marketing responsiveness signals — open rate, click rate, conversion — used as behavioral features for churn prediction and segment responsiveness scoring.</div></div>
+          <div class="iblock"><div class="ilabel">Freshness SLA · Grain</div><div class="ivalue">Daily at 02:00 UTC. Warn after 24h. · One row per campaign send per customer.</div></div>
+          <div class="iblock full"><div class="ilabel">Contributes Downstream</div><div class="pills">
+            <span class="pill">Email open rate → feat_customer_segmentation</span>
+            <span class="pill">Click-through rate → engagement signal</span>
+            <span class="pill">Conversion flag → revenue_attributed in fct_campaigns</span>
+            <span class="pill">Channel preference → personalization logic</span>
+            <span class="pill">Campaign ROI → marketing dashboard KPI</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">campaign_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>Unique send identifier. Composite of campaign + customer + send_date in source.</td></tr>
+          <tr><td><span class="cn">customer_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td>References stg_customers.customer_id.</td></tr>
+          <tr><td><span class="cn">campaign_name</span></td><td><span class="cn">varchar</span></td><td>Name of the campaign as defined in the marketing platform.</td></tr>
+          <tr><td><span class="cn">channel</span></td><td><span class="cn">varchar</span></td><td>email / sms / push / in-app. Used for channel mix and preference analysis.</td></tr>
+          <tr><td><span class="cn">sent_at</span></td><td><span class="cn">timestamp</span></td><td>UTC timestamp of message delivery.</td></tr>
+          <tr><td><span class="cn">opened_at</span></td><td><span class="cn">timestamp</span></td><td>Nullable. Timestamp of open event. Null = not opened.</td></tr>
+          <tr><td><span class="cn">clicked_at</span></td><td><span class="cn">timestamp</span></td><td>Nullable. Timestamp of click event. Null = not clicked.</td></tr>
+          <tr><td><span class="cn">converted</span></td><td><span class="cn">boolean</span></td><td>True if customer made a purchase within 7 days of receiving campaign.</td></tr>
+          <tr><td><span class="cn">_loaded_at</span></td><td><span class="cn">timestamp</span></td><td>Load timestamp.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- stg_support_tickets -->
+    <div class="card" data-search="stg_support_tickets support tickets helpdesk csat satisfaction complaints resolution churn">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#BA7517"></div>
+        <span class="cname">stg_support_tickets</span>
+        <span class="ctagline">Customer service interactions and satisfaction scores</span>
+        <div class="badges"><span class="badge bamber">Support / CSAT</span><span class="badge bg">50K rows · daily</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Source System</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Synthetic support ticket records generated in Snowflake via Python script simulating a helpdesk platform export. Stored in <code>RAW.support_tickets</code>.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Customer support platform exports nightly to S3. Snowflake Task runs COPY INTO with incremental load on created_at. Lowest volume source but high signal-to-noise ratio.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why We Use It</div><div class="ivalue">Support ticket rate and CSAT scores are among the strongest leading indicators of churn. A customer filing multiple high-priority tickets with low satisfaction is significantly more likely to churn within 90 days.</div></div>
+          <div class="iblock"><div class="ilabel">Freshness SLA · Grain</div><div class="ivalue">Daily at 02:00 UTC. Warn after 24h. · One row per support ticket. Multiple tickets possible per customer.</div></div>
+          <div class="iblock full"><div class="ilabel">Contributes Downstream</div><div class="pills">
+            <span class="pill">Support ticket rate → feat_customer_segmentation</span>
+            <span class="pill">Avg CSAT score → customer health signal</span>
+            <span class="pill">High-priority ticket count → churn risk signal</span>
+            <span class="pill">Unresolved ticket flag → at-risk identification</span>
+            <span class="pill">Resolution time → operational KPI in dashboards</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">ticket_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>Unique support ticket identifier from helpdesk platform.</td></tr>
+          <tr><td><span class="cn">customer_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td>References stg_customers.customer_id.</td></tr>
+          <tr><td><span class="cn">created_at</span></td><td><span class="cn">timestamp</span></td><td>When the ticket was opened by the customer.</td></tr>
+          <tr><td><span class="cn">resolved_at</span></td><td><span class="cn">timestamp</span></td><td>Nullable. When closed. Null = still open.</td></tr>
+          <tr><td><span class="cn">category</span></td><td><span class="cn">varchar</span></td><td>billing / fraud / technical / account / general. Used for issue type distribution.</td></tr>
+          <tr><td><span class="cn">priority</span></td><td><span class="cn">varchar</span></td><td>low / medium / high / critical. High + critical tickets are strong churn signals.</td></tr>
+          <tr><td><span class="cn">status</span></td><td><span class="cn">varchar</span></td><td>open / in-progress / resolved / closed. Open tickets on active customers = at-risk flag.</td></tr>
+          <tr><td><span class="cn">satisfaction_score</span></td><td><span class="cn">int</span></td><td>CSAT score 1–5. Nullable — not always submitted post-resolution.</td></tr>
+          <tr><td><span class="cn">_loaded_at</span></td><td><span class="cn">timestamp</span></td><td>Load timestamp.</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       INTERMEDIATE PANEL
+  ══════════════════════════════════════ -->
+  <div id="int" class="panel">
+    <div class="layer-intro">
+      <span class="layer-pill lp-int">Intermediate Layer</span>
+      <span class="layer-desc">Business joins and aggregations. Materialized as <strong>Ephemeral</strong> — compiled as CTEs inside downstream models. Never queried directly by BI tools or analysts.</span>
+    </div>
+
+    <!-- int_customer_orders -->
+    <div class="card" data-search="int_customer_orders orders aggregation rfm frequency recency total orders avg order value">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#7F77DD"></div>
+        <span class="cname">int_customer_orders</span>
+        <span class="ctagline">Per-customer order behavior aggregations</span>
+        <div class="badges"><span class="badge bpurple">Ephemeral</span><span class="badge bg">1 row / customer</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Ephemeral — compiled as a CTE inside downstream mart models. No physical table created in Snowflake.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Could be promoted to a View or Table if multiple downstream models reference it independently or if query compilation cost becomes significant.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Aggregates raw order rows into one customer-level summary. Keeps mart models clean — no GROUP BY logic in the final layer. Centralizes order metric definitions in one place.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>stg_customers</code> · <code>stg_orders</code> · <code>stg_products</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">fct_customer_value → total_orders, avg_order_value, recency</span>
+            <span class="pill">fct_orders → order-level enrichment</span>
+            <span class="pill">feat_customer_segmentation → frequency_norm, monetary_norm</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">customer_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>FK to stg_customers. One row per customer.</td></tr>
+          <tr><td><span class="cn">total_orders</span></td><td><span class="cn">int</span></td><td>Count of completed orders only. Excludes cancelled and returned.</td></tr>
+          <tr><td><span class="cn">completed_orders</span></td><td><span class="cn">int</span></td><td>Same as total_orders. Kept explicit for clarity in downstream joins.</td></tr>
+          <tr><td><span class="cn">cancelled_orders</span></td><td><span class="cn">int</span></td><td>Count of cancelled orders. Used for cancellation rate metric.</td></tr>
+          <tr><td><span class="cn">first_order_date</span></td><td><span class="cn">date</span></td><td>Date of customer's first completed order. Used for cohort analysis.</td></tr>
+          <tr><td><span class="cn">last_order_date</span></td><td><span class="cn">date</span></td><td>Most recent completed order date. Drives recency score in fct_customer_value.</td></tr>
+          <tr><td><span class="cn">avg_order_value</span></td><td><span class="cn">float</span></td><td>total_order_value / total_orders. Pre-computed here to avoid repetition in mart.</td></tr>
+          <tr><td><span class="cn">total_order_value</span></td><td><span class="cn">float</span></td><td>Sum of total_amount across all completed orders. Maps to monetary dimension.</td></tr>
+          <tr><td><span class="cn">top_category</span></td><td><span class="cn">varchar</span></td><td>Most purchased product category. Used in product affinity and segmentation.</td></tr>
+          <tr><td><span class="cn">days_since_last_order</span></td><td><span class="cn">int</span></td><td>Current date minus last_order_date. Key recency signal for RFM scoring.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- int_customer_transactions -->
+    <div class="card" data-search="int_customer_transactions payments spend transactions merchants failed fraud">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#7F77DD"></div>
+        <span class="cname">int_customer_transactions</span>
+        <span class="ctagline">Per-customer payment behavior aggregations</span>
+        <div class="badges"><span class="badge bpurple">Ephemeral</span><span class="badge bg">1 row / customer</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Ephemeral — compiled as a CTE. Aggregates 5M+ transaction rows to 1 row per customer before joining to mart models.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Given the high volume of stg_transactions, this model would likely be promoted to an incremental Table in production to avoid re-aggregating 5M rows on every run.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Reduces 5M+ transaction rows to one customer-level summary. Computes failed transaction ratios and spend metrics used by both fraud and segmentation models.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>stg_transactions</code> · <code>stg_customers</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">fct_customer_value → total_spend</span>
+            <span class="pill">int_customer_fraud_signals → failed_txn_ratio</span>
+            <span class="pill">feat_fraud_behavior → velocity and spend features</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">customer_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>FK to stg_customers. One row per customer.</td></tr>
+          <tr><td><span class="cn">total_transactions</span></td><td><span class="cn">int</span></td><td>Count of all payment attempts including failed.</td></tr>
+          <tr><td><span class="cn">total_spend</span></td><td><span class="cn">float</span></td><td>Sum of successful purchase amounts in USD. Excludes refunds and fees.</td></tr>
+          <tr><td><span class="cn">avg_transaction_amount</span></td><td><span class="cn">float</span></td><td>Mean transaction value. Used in amount anomaly detection.</td></tr>
+          <tr><td><span class="cn">max_transaction_amount</span></td><td><span class="cn">float</span></td><td>Largest single transaction. Used to flag unusually large payments.</td></tr>
+          <tr><td><span class="cn">distinct_merchants</span></td><td><span class="cn">int</span></td><td>Number of unique merchants transacted with. Diversity signal.</td></tr>
+          <tr><td><span class="cn">payment_methods_used</span></td><td><span class="cn">int</span></td><td>Count of distinct payment methods. Higher = lower fraud risk typically.</td></tr>
+          <tr><td><span class="cn">failed_transactions</span></td><td><span class="cn">int</span></td><td>Count of failed payment attempts. Used to compute failed_txn_ratio.</td></tr>
+          <tr><td><span class="cn">last_transaction_date</span></td><td><span class="cn">timestamp</span></td><td>Most recent successful transaction timestamp.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- int_customer_fraud_signals -->
+    <div class="card" data-search="int_customer_fraud_signals fraud risk velocity cross border night flag anomaly">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#D85A30"></div>
+        <span class="cname">int_customer_fraud_signals</span>
+        <span class="ctagline">Rule-based fraud flags derived from transaction patterns</span>
+        <div class="badges"><span class="badge bcoral">Fraud Logic</span><span class="badge bpurple">Ephemeral</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Ephemeral — all fraud flag logic compiled as CTEs within feat_fraud_behavior and fct_transactions. Business rules are centralized here for consistency.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Would be promoted to an incremental Table — fraud signal computation on 5M+ rows is expensive and results should be persisted daily rather than recomputed on every model run.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Centralizes all rule-based fraud flag definitions. Ensures the same flag logic is used consistently across the is_high_risk column in fct_transactions and the fraud feature table for ML.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>stg_transactions</code> · <code>stg_customers</code> · <code>int_customer_transactions</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">fct_transactions → is_high_risk flag</span>
+            <span class="pill">feat_fraud_behavior → all normalized fraud features</span>
+            <span class="pill">customer_risk_scores → IsolationForest input</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">customer_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>FK to stg_customers. One row per customer.</td></tr>
+          <tr><td><span class="cn">high_velocity_flag</span></td><td><span class="cn">boolean</span></td><td>True if avg daily transactions exceed threshold. Velocity anomaly signal.</td></tr>
+          <tr><td><span class="cn">unusual_amount_flag</span></td><td><span class="cn">boolean</span></td><td>True if any transaction exceeds 3x the customer's avg transaction amount.</td></tr>
+          <tr><td><span class="cn">new_device_flag</span></td><td><span class="cn">boolean</span></td><td>True if transaction came from a device not seen in prior 30 days.</td></tr>
+          <tr><td><span class="cn">cross_border_flag</span></td><td><span class="cn">boolean</span></td><td>True if transactions include non-USD currency. Geographic risk signal.</td></tr>
+          <tr><td><span class="cn">night_txn_ratio</span></td><td><span class="cn">float</span></td><td>Proportion of transactions occurring between 00:00–05:00 UTC.</td></tr>
+          <tr><td><span class="cn">failed_txn_ratio</span></td><td><span class="cn">float</span></td><td>failed_transactions / total_transactions. Key fraud signal.</td></tr>
+          <tr><td><span class="cn">avg_daily_txn_count</span></td><td><span class="cn">float</span></td><td>Mean number of transactions per active day. Used in velocity scoring.</td></tr>
+          <tr><td><span class="cn">max_single_day_amount</span></td><td><span class="cn">float</span></td><td>Highest total spend in a single calendar day.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- int_session_features -->
+    <div class="card" data-search="int_session_features sessions engagement duration pages mobile churn behavior">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#7F77DD"></div>
+        <span class="cname">int_session_features</span>
+        <span class="ctagline">Per-customer digital engagement aggregations</span>
+        <div class="badges"><span class="badge bpurple">Ephemeral</span><span class="badge bg">1 row / customer</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Ephemeral — aggregates 8M+ event rows down to 1 row per customer before joining to mart. Anonymous (null customer_id) events are excluded.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Given 8M+ daily event rows, this would be an incremental Table in production — incrementally processing only new sessions rather than re-aggregating the full event history daily.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Reduces raw clickstream to customer-level engagement metrics. These behavioral signals complement transaction data for a more complete view of customer health and churn risk.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>stg_events</code> · <code>stg_customers</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">fct_customer_value → total_sessions engagement signal</span>
+            <span class="pill">feat_customer_segmentation → session_frequency_norm, avg_session_dur_norm</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">customer_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>FK to stg_customers. One row per customer. Anonymous sessions excluded.</td></tr>
+          <tr><td><span class="cn">total_sessions</span></td><td><span class="cn">int</span></td><td>Count of distinct session_ids linked to this customer.</td></tr>
+          <tr><td><span class="cn">avg_session_duration_sec</span></td><td><span class="cn">int</span></td><td>Mean session length in seconds. Low duration = low engagement / churn signal.</td></tr>
+          <tr><td><span class="cn">pages_per_session</span></td><td><span class="cn">float</span></td><td>Avg number of page_view events per session. Depth of engagement.</td></tr>
+          <tr><td><span class="cn">mobile_session_ratio</span></td><td><span class="cn">float</span></td><td>Proportion of sessions on mobile device. Used for device preference segmentation.</td></tr>
+          <tr><td><span class="cn">last_active_date</span></td><td><span class="cn">date</span></td><td>Date of most recent session. Digital recency signal.</td></tr>
+          <tr><td><span class="cn">days_since_last_session</span></td><td><span class="cn">int</span></td><td>Current date minus last_active_date. Strong churn predictor.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- int_product_affinity -->
+    <div class="card" data-search="int_product_affinity product category affinity diversity repeat purchase segmentation">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#639922"></div>
+        <span class="cname">int_product_affinity</span>
+        <span class="ctagline">Per-customer product category preference signals</span>
+        <div class="badges"><span class="badge bgreen">Affinity</span><span class="badge bpurple">Ephemeral</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Ephemeral — joins stg_orders and stg_products, then ranks categories by purchase frequency per customer. Compiled as a CTE inside mart models.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Table materialization preferred — product affinity calculations involve window functions over order history which are expensive to recompute on every run.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Translates raw order and product data into customer preference signals. Enables product-based personalization and enriches ML segmentation features with category diversity scores.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>stg_orders</code> · <code>stg_products</code> · <code>stg_customers</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">feat_customer_segmentation → category_diversity_norm</span>
+            <span class="pill">dim_customers → top product category enrichment</span>
+            <span class="pill">personalization engine → product recommendations</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Definition</th></tr>
+          <tr><td><span class="cn">customer_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td>FK to stg_customers. One row per customer.</td></tr>
+          <tr><td><span class="cn">top_category</span></td><td><span class="cn">varchar</span></td><td>Category with highest purchase count for this customer.</td></tr>
+          <tr><td><span class="cn">second_category</span></td><td><span class="cn">varchar</span></td><td>Second most purchased category. Used for cross-sell recommendations.</td></tr>
+          <tr><td><span class="cn">category_diversity_score</span></td><td><span class="cn">float</span></td><td>Normalized entropy of category distribution. Higher = more diverse buyer.</td></tr>
+          <tr><td><span class="cn">repeat_purchase_rate</span></td><td><span class="cn">float</span></td><td>Proportion of orders that are repeat purchases in the same category.</td></tr>
+          <tr><td><span class="cn">avg_qty_per_order</span></td><td><span class="cn">float</span></td><td>Mean quantity per order. Used in bulk vs single-unit buyer segmentation.</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MART PANEL
+  ══════════════════════════════════════ -->
+  <div id="mart" class="panel">
+    <div class="layer-intro">
+      <span class="layer-pill lp-mart">Mart Layer</span>
+      <span class="layer-desc">Analytics-ready star schema. Materialized as <strong>Tables</strong>. Consumed by Sigma, Power BI, MetricFlow semantic layer, and ML feature models. Is KPI column marks fields surfaced in executive dashboards.</span>
+    </div>
+
+    <!-- dim_customers -->
+    <div class="card" data-search="dim_customers dimension customer profile tenure active kyc status demographics">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#378ADD"></div>
+        <span class="cname">dim_customers</span>
+        <span class="ctagline">Customer dimension — cleaned profile for all fact joins</span>
+        <div class="badges"><span class="badge bblue">Dimension</span><span class="badge bg">1 row / customer · daily</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Full refresh Table. Rebuilt daily. Small enough (~270K rows) that incremental is not needed.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Table with full refresh daily. SCD Type 2 history tracked separately in snap_customer_profile for attributes like kyc_status and account_status.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Single cleaned customer dimension. All fact tables join here on customer_id. Provides stable, deduplicated customer attributes for BI tools and mart models.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>stg_customers</code> · <code>int_product_affinity</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">fct_orders · fct_transactions · fct_campaigns · fct_customer_value</span>
+            <span class="pill">Sigma dashboards — customer profile views</span>
+            <span class="pill">snap_customer_profile — SCD Type 2 snapshot</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Is KPI</th><th>Definition</th></tr>
+          <tr><td><span class="cn">customer_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>Unique customer identifier. FK source for all fact tables.</td></tr>
+          <tr><td><span class="cn">full_name</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>Concatenation of first_name + last_name. Display field only.</td></tr>
+          <tr><td><span class="cn">email</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>Primary contact email. Used for campaign matching.</td></tr>
+          <tr><td><span class="cn">signup_date</span></td><td><span class="cn">date</span></td><td><span class="kno">No</span></td><td>Account creation date. Used for cohort analysis and tenure.</td></tr>
+          <tr><td><span class="cn">state</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>US state code. Used in geographic segmentation dashboards.</td></tr>
+          <tr><td><span class="cn">country</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>ISO 2-letter country code.</td></tr>
+          <tr><td><span class="cn">kyc_status</span></td><td><span class="cn">varchar</span></td><td><span class="kyes">Yes</span></td><td>KYC verification state. Surfaced in compliance dashboard.</td></tr>
+          <tr><td><span class="cn">account_status</span></td><td><span class="cn">varchar</span></td><td><span class="kyes">Yes</span></td><td>active / suspended / closed / dormant. Used in active customer count KPI.</td></tr>
+          <tr><td><span class="cn">customer_tenure_days</span></td><td><span class="cn">int</span></td><td><span class="kyes">Yes</span></td><td>Days since signup_date. Used in cohort and retention dashboards.</td></tr>
+          <tr><td><span class="cn">is_active</span></td><td><span class="cn">boolean</span></td><td><span class="kyes">Yes</span></td><td>Derived from account_status = active. Standard active customer filter.</td></tr>
+          <tr><td><span class="cn">dbt_updated_at</span></td><td><span class="cn">timestamp</span></td><td><span class="kno">No</span></td><td>Timestamp of last dbt model run. Used for freshness monitoring.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- fct_orders -->
+    <div class="card" data-search="fct_orders orders fact purchase channel margin product revenue">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#378ADD"></div>
+        <span class="cname">fct_orders</span>
+        <span class="ctagline">Order-level fact table with enriched purchase data</span>
+        <div class="badges"><span class="badge bblue">Fact</span><span class="badge bg">1 row / order · daily</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Full refresh Table rebuilt daily. Joins stg_orders with dim_customers and stg_products for enriched order facts.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Incremental Table on order_date. Only processes new or updated orders each run. Merge strategy on order_id handles late-arriving status updates.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Provides order-level granularity for revenue reporting, channel analysis, and product performance dashboards. Acts as the bridge between customer and product dimensions.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>dim_customers</code> · <code>stg_orders</code> · <code>stg_products</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">Sigma — revenue by channel dashboard</span>
+            <span class="pill">Power BI — product performance report</span>
+            <span class="pill">fct_transactions → order_id join for enrichment</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Is KPI</th><th>Definition</th></tr>
+          <tr><td><span class="cn">order_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>Unique order identifier.</td></tr>
+          <tr><td><span class="cn">customer_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>References dim_customers.customer_id.</td></tr>
+          <tr><td><span class="cn">product_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>References stg_products.product_id.</td></tr>
+          <tr><td><span class="cn">order_date</span></td><td><span class="cn">date</span></td><td><span class="kno">No</span></td><td>Date order was placed. Partition key for incremental loads.</td></tr>
+          <tr><td><span class="cn">order_status</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>completed / cancelled / pending / returned.</td></tr>
+          <tr><td><span class="cn">total_amount</span></td><td><span class="cn">float</span></td><td><span class="kyes">Yes</span></td><td>Gross order value in USD. Core revenue KPI in Sigma dashboard.</td></tr>
+          <tr><td><span class="cn">quantity</span></td><td><span class="cn">int</span></td><td><span class="kno">No</span></td><td>Units ordered. Used for volume reporting.</td></tr>
+          <tr><td><span class="cn">channel</span></td><td><span class="cn">varchar</span></td><td><span class="kyes">Yes</span></td><td>web / mobile / in-store / partner. Channel mix is a tracked KPI.</td></tr>
+          <tr><td><span class="cn">gross_margin</span></td><td><span class="cn">float</span></td><td><span class="kyes">Yes</span></td><td>total_amount minus unit_price × quantity. Profitability KPI.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- fct_transactions -->
+    <div class="card" data-search="fct_transactions payments fraud high risk transaction fact payment method currency">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#D85A30"></div>
+        <span class="cname">fct_transactions</span>
+        <span class="ctagline">Payment-level fact table with fraud risk flag</span>
+        <div class="badges"><span class="badge bcoral">Fact · Fraud</span><span class="badge bg">1 row / transaction · daily</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Incremental Table on transaction_date. Processes only new transactions each run. Merge strategy on transaction_id.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Incremental Table — same strategy. Given 5M+ daily rows, full refresh is not viable. is_high_risk flag recalculated only for transactions within the incremental window.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Provides transaction-level detail for fraud investigation, payment reporting, and compliance dashboards. The is_high_risk flag makes fraud-flagged transactions directly queryable by analysts.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>dim_customers</code> · <code>stg_transactions</code> · <code>fct_orders</code> · <code>int_customer_fraud_signals</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">Power BI — fraud monitoring dashboard</span>
+            <span class="pill">Sigma — transaction explorer</span>
+            <span class="pill">Compliance team — high-risk transaction exports</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Is KPI</th><th>Definition</th></tr>
+          <tr><td><span class="cn">transaction_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>Unique payment attempt identifier.</td></tr>
+          <tr><td><span class="cn">customer_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>References dim_customers.customer_id.</td></tr>
+          <tr><td><span class="cn">order_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>References fct_orders.order_id. Nullable.</td></tr>
+          <tr><td><span class="cn">transaction_date</span></td><td><span class="cn">timestamp</span></td><td><span class="kno">No</span></td><td>UTC timestamp. Incremental partition key.</td></tr>
+          <tr><td><span class="cn">amount</span></td><td><span class="cn">float</span></td><td><span class="kyes">Yes</span></td><td>Transaction value in USD. Total flagged amount is a compliance KPI ($4.2M).</td></tr>
+          <tr><td><span class="cn">currency</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>ISO currency code.</td></tr>
+          <tr><td><span class="cn">payment_method</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>card / ach / wallet / wire.</td></tr>
+          <tr><td><span class="cn">transaction_type</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>purchase / refund / reversal / fee.</td></tr>
+          <tr><td><span class="cn">status</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>success / failed / pending / reversed.</td></tr>
+          <tr><td><span class="cn">is_high_risk</span></td><td><span class="cn">boolean</span></td><td><span class="kyes">Yes</span></td><td>True if transaction triggered fraud signals. 28K flagged in production. Core fraud KPI.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- fct_campaigns -->
+    <div class="card" data-search="fct_campaigns marketing campaigns conversion roi channel attribution revenue">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#D4537E"></div>
+        <span class="cname">fct_campaigns</span>
+        <span class="ctagline">Campaign engagement and revenue attribution fact table</span>
+        <div class="badges"><span class="badge bpink">Fact · Marketing</span><span class="badge bg">1 row / send · daily</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Full refresh Table rebuilt daily. Joins stg_campaigns with dim_customers and applies revenue attribution logic.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Incremental Table on sent_at date. Revenue attribution recalculated for the 7-day conversion window, so a 7-day lookback is applied on each incremental run.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Provides campaign-level ROI and engagement metrics for the marketing team. Enables channel performance comparison and conversion rate reporting across email, SMS, and push campaigns.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>dim_customers</code> · <code>stg_campaigns</code> · <code>fct_orders</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">Sigma — campaign performance dashboard</span>
+            <span class="pill">Marketing team — channel ROI reporting</span>
+            <span class="pill">Power BI — conversion funnel report</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Is KPI</th><th>Definition</th></tr>
+          <tr><td><span class="cn">campaign_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>Unique send identifier per customer per campaign.</td></tr>
+          <tr><td><span class="cn">customer_id<span class="fk">FK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>References dim_customers.customer_id.</td></tr>
+          <tr><td><span class="cn">campaign_name</span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>Campaign name from marketing platform.</td></tr>
+          <tr><td><span class="cn">channel</span></td><td><span class="cn">varchar</span></td><td><span class="kyes">Yes</span></td><td>email / sms / push / in-app. Channel mix is a tracked marketing KPI.</td></tr>
+          <tr><td><span class="cn">sent_at</span></td><td><span class="cn">timestamp</span></td><td><span class="kno">No</span></td><td>UTC timestamp of message delivery.</td></tr>
+          <tr><td><span class="cn">opened</span></td><td><span class="cn">boolean</span></td><td><span class="kyes">Yes</span></td><td>True if message was opened. Open rate is a campaign performance KPI.</td></tr>
+          <tr><td><span class="cn">clicked</span></td><td><span class="cn">boolean</span></td><td><span class="kyes">Yes</span></td><td>True if CTA was clicked. Click-through rate is a tracked KPI.</td></tr>
+          <tr><td><span class="cn">converted</span></td><td><span class="cn">boolean</span></td><td><span class="kyes">Yes</span></td><td>True if purchase made within 7 days of send. Conversion rate is core marketing KPI.</td></tr>
+          <tr><td><span class="cn">revenue_attributed</span></td><td><span class="cn">float</span></td><td><span class="kyes">Yes</span></td><td>Revenue from orders within 7-day attribution window. Campaign ROI KPI.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- fct_customer_value -->
+    <div class="card" data-search="fct_customer_value customer 360 rfm ltv churn segment composite score prediction">
+      <div class="card-header" onclick="toggle(this)">
+        <div class="accent" style="background:#185FA5"></div>
+        <span class="cname">fct_customer_value</span>
+        <span class="ctagline">Customer 360 unified profile — core analytics table</span>
+        <div class="badges"><span class="badge bblue">Fact · Customer 360</span><span class="badge bg">1 row / customer · daily</span></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="iblock full"><div class="ilabel">Materialization</div><div class="twopart">
+            <div class="tprow"><div class="tplabel tp-proj">In this project</div><div class="tpval">Full refresh Table rebuilt daily. Joins all intermediate models into a single Customer 360 row per customer. Central model of the entire project.</div></div>
+            <div class="tprow"><div class="tplabel tp-prod">In production</div><div class="tpval">Incremental Table on customer_id. Only reprocesses customers with activity in the last 24h. RFM scores recalculated on a rolling 90-day window.</div></div>
+          </div></div>
+          <div class="iblock"><div class="ilabel">Why This Model Exists</div><div class="ivalue">Single source of truth for all customer-level KPIs. Powers Sigma dashboards, Power BI reports, ML feature tables, and the executive scorecard. Every downstream consumer reads from here.</div></div>
+          <div class="iblock"><div class="ilabel">Source Models</div><div class="ivalue"><code>dim_customers</code> · <code>int_customer_orders</code> · <code>int_customer_transactions</code> · <code>int_session_features</code> · <code>int_product_affinity</code></div></div>
+          <div class="iblock full"><div class="ilabel">Consumed By</div><div class="pills">
+            <span class="pill">Sigma — retention and segmentation dashboards</span>
+            <span class="pill">Power BI — churn and LTV reports</span>
+            <span class="pill">feat_customer_segmentation — KMeans input</span>
+            <span class="pill">feat_fraud_behavior — IsolationForest input</span>
+            <span class="pill">Executive KPI scorecard</span>
+            <span class="pill">snap_customer_profile — SCD Type 2 tracking</span>
+          </div></div>
+        </div>
+        <div class="stitle">Columns</div>
+        <table class="ct"><tr><th>Column</th><th>Type</th><th>Is KPI</th><th>Definition</th></tr>
+          <tr><td><span class="cn">customer_id<span class="pk">PK</span></span></td><td><span class="cn">varchar</span></td><td><span class="kno">No</span></td><td>Unique customer identifier. FK to dim_customers.</td></tr>
+          <tr><td><span class="cn">total_orders</span></td><td><span class="cn">int</span></td><td><span class="kyes">Yes</span></td><td>Lifetime completed order count. Drives frequency score and dashboard metrics.</td></tr>
+          <tr><td><span class="cn">total_spend</span></td><td><span class="cn">float</span></td><td><span class="kyes">Yes</span></td><td>Lifetime gross spend in USD. Core monetary KPI in executive scorecard.</td></tr>
+          <tr><td><span class="cn">avg_order_value</span></td><td><span class="cn">float</span></td><td><span class="kyes">Yes</span></td><td>total_spend / total_orders. Tracked in executive KPI scorecard.</td></tr>
+          <tr><td><span class="cn">days_since_last_order</span></td><td><span class="cn">int</span></td><td><span class="kno">No</span></td><td>Recency signal. Input to recency_score. Not surfaced directly in dashboards.</td></tr>
+          <tr><td><span class="cn">total_sessions</span></td><td><span class="cn">int</span></td><td><span class="kno">No</span></td><td>Lifetime session count from stg_events. Engagement input feature.</td></tr>
+          <tr><td><span class="cn">recency_score</span></td><td><span class="cn">int</span></td><td><span class="kno">No</span></td><td>RFM recency score 1–5. Internal scoring. Not a dashboard KPI directly.</td></tr>
+          <tr><td><span class="cn">frequency_score</span></td><td><span class="cn">int</span></td><td><span class="kno">No</span></td><td>RFM frequency score 1–5. Internal scoring.</td></tr>
+          <tr><td><span class="cn">monetary_score</span></td><td><span class="cn">int</span></td><td><span class="kno">No</span></td><td>RFM monetary score 1–5. Internal scoring.</td></tr>
+          <tr><td><span class="cn">rfm_segment</span></td><td><span class="cn">varchar</span></td><td><span class="kyes">Yes</span></td><td>RFM label e.g. Champions, At Risk. Primary segmentation KPI in Sigma dashboard.</td></tr>
+          <tr><td><span class="cn">predicted_ltv</span></td><td><span class="cn">float</span></td><td><span class="kyes">Yes</span></td><td>12-month predicted lifetime value in USD. Executive scorecard KPI.</td></tr>
+          <tr><td><span class="cn">churn_probability</span></td><td><span class="cn">float</span></td><td><span class="kyes">Yes</span></td><td>0–1 churn risk score. >0.7 = high risk. Drives retention alerts. 85% model accuracy.</td></tr>
+          <tr><td><span class="cn">customer_segment</span></td><td><span class="cn">varchar</span></td><td><span class="kyes">Yes</span></td><td>KMeans cluster label e.g. High Value, New. Used in personalization and dashboard.</td></tr>
+          <tr><td><span class="cn">composite_score</span></td><td><span class="cn">float</span></td><td><span class="kno">No</span></td><td>Weighted blend of RFM + LTV + churn. Internal customer ranking signal.</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">customer-360-snowflake-dbt · github.com/sriramsripada20s</div>
+    <div class="footer-right">Last updated Apr 2026</div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+function toggle(header) {
+  const body = header.nextElementSibling;
+  const chev = header.querySelector('.chev');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chev.classList.toggle('open', !isOpen);
+}
+
+function filterCards(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.card').forEach(card => {
+    const text = (card.dataset.search || '') + ' ' + card.innerText.toLowerCase();
+    card.classList.toggle('hidden', q.length > 0 && !text.includes(q));
+  });
+}
+</script>
+</body>
+</html>
