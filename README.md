@@ -85,74 +85,13 @@ Automatically score every customer and transaction for suspicious behavior and s
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    DATA SOURCES                      │
-│  Customers · Orders · Order Items · Products         │
-│  Transactions · Events · Campaigns                   │
-└───────────────────────┬─────────────────────────────┘
-                        │ Snowflake native tables
-                        ▼
-┌─────────────────────────────────────────────────────┐
-│              SNOWFLAKE  (CUSTOMER_PLATFORM)          │
-│                                                      │
-│  ┌─────────────────────────────────────────────┐    │
-│  │  STAGING  (7 views)                         │    │
-│  │  Clean · Deduplicate · Standardize          │    │
-│  │  stg_customers · stg_orders · stg_events    │    │
-│  │  stg_transactions · stg_campaigns · ...     │    │
-│  └──────────────────────┬──────────────────────┘    │
-│                         │ dbt ref()                  │
-│  ┌──────────────────────▼──────────────────────┐    │
-│  │  INTERMEDIATE  (5 ephemeral)                │    │
-│  │  Business joins · RFM aggregations          │    │
-│  │  Fraud signals · Session features           │    │
-│  └──────────────────────┬──────────────────────┘    │
-│                         │ dbt ref()                  │
-│  ┌──────────────────────▼──────────────────────┐    │
-│  │  MART  (3 tables)                           │    │
-│  │  dim_customers · fct_orders                 │    │
-│  │  fct_customer_value  ← Customer 360 table   │    │
-│  └──────────────────────┬──────────────────────┘    │
-│                         │                            │
-│  ┌──────────────────────▼──────────────────────┐    │
-│  │  FEATURES  (ML-ready, incremental)          │    │
-│  │  feat_fraud_behavior                        │    │
-│  │  feat_customer_segmentation                 │    │
-│  │  feat_personalization                       │    │
-│  └──────────────────────┬──────────────────────┘    │
-│                         │                            │
-│  ┌──────────────────────▼──────────────────────┐    │
-│  │  SEMANTIC LAYER  (MetricFlow — 18 metrics)  │    │
-│  │  Sigma · Power BI · dbt Cloud API           │    │
-│  └─────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────┘
-            │                           │
-            ▼                           ▼
-┌───────────────────┐       ┌───────────────────────┐
-│   BI & REPORTING  │       │     SNOWPARK ML        │
-│                   │       │                        │
-│  Sigma Computing  │       │  KMeans Segmentation   │
-│  Power BI         │       │  Isolation Forest      │
-│  Live Dashboard   │       │  Scores → Snowflake    │
-└───────────────────┘       └───────────────────────┘
-            │
-            ▼
-┌─────────────────────────────────────────────────────┐
-│              CI / CD  (GitHub Actions)               │
-│                                                      │
-│  Pull Request  →  dbt compile + dbt build (CI schema)│
-│  Merge to main →  dbt Cloud daily job at 6 AM UTC    │
-│  Post-build    →  export_metrics.py → metrics.json   │
-│  GitHub Pages  →  live dashboard auto-updates        │
-└─────────────────────────────────────────────────────┘
-```
+<img width="1148" height="843" alt="image" src="https://github.com/user-attachments/assets/75e0206f-da9d-4aed-8e63-ac77979e2d7b" />
 
----
 
 ## Medallion Architecture — Layer by Layer
 
 View the Entire data sources & their definition here: https://sriramsripada20s.github.io/customer-360-snowflake-dbt/customer_360_registry.html
+
 
 ### RAW
 
