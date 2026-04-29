@@ -1,23 +1,23 @@
 {
-  "updated_at": "2026-04-28 08:42 UTC",
+  "updated_at": "2026-04-29 08:37 UTC",
   "total_customers": 50000,
   "active_customers": 47500,
   "churn_rate": 0.05,
   "total_revenue": 224303622,
-  "revenue_last_30d": 9597445,
-  "revenue_last_90d": 46404840,
+  "revenue_last_30d": 8979669,
+  "revenue_last_90d": 45770575,
   "avg_order_value": 250,
   "revenue_per_active_customer": 4722.2,
-  "avg_customer_value_score": 25.3,
-  "high_risk_customer_count": 7,
-  "avg_churn_risk_score": 25.5,
+  "avg_customer_value_score": 25.0,
+  "high_risk_customer_count": 4,
+  "avg_churn_risk_score": 25.7,
   "avg_failed_txn_rate": 0.05,
   "avg_chargeback_rate": 0.01,
   "avg_cart_abandon_rate": 0.1,
   "avg_email_open_rate": 0.333,
   "avg_email_click_rate": 0.167,
   "avg_personalization_score": 80.5,
-  "avg_recency_days": 97.9,
+  "avg_recency_days": 98.8,
   "total_customers_by_loyalty_tier": [
     {
       "label": "bronze",
@@ -61,19 +61,19 @@
   "avg_recency_days_by_loyalty_tier": [
     {
       "label": "platinum",
-      "value": 47.9
+      "value": 48.9
     },
     {
       "label": "gold",
-      "value": 48.5
+      "value": 49.5
     },
     {
       "label": "silver",
-      "value": 110.0
+      "value": 110.9
     },
     {
       "label": "bronze",
-      "value": 110.4
+      "value": 111.3
     }
   ],
   "total_revenue_by_loyalty_tier": [
@@ -97,23 +97,23 @@
   "revenue_last_30d_by_age_band": [
     {
       "label": "Boomer+ (55+)",
-      "value": 1319010.0
+      "value": 1228088.0
     },
     {
       "label": "Gen X (45-54)",
-      "value": 2282291.0
+      "value": 2139403.0
     },
     {
       "label": "Gen Z (18-24)",
-      "value": 1373767.0
+      "value": 1291809.0
     },
     {
       "label": "Millennial (25-34)",
-      "value": 2301148.0
+      "value": 2156328.0
     },
     {
       "label": "Xennial (35-44)",
-      "value": 2321229.0
+      "value": 2164042.0
     }
   ],
   "avg_order_value_by_loyalty_tier": [
@@ -163,29 +163,25 @@
   "high_risk_by_loyalty_tier": [
     {
       "label": "bronze",
-      "value": 6.0
-    },
-    {
-      "label": "silver",
-      "value": 1.0
+      "value": 4.0
     }
   ],
   "avg_churn_risk_score_by_loyalty_tier": [
     {
       "label": "gold",
-      "value": 30.6
-    },
-    {
-      "label": "bronze",
-      "value": 26.0
+      "value": 30.9
     },
     {
       "label": "silver",
-      "value": 25.9
+      "value": 26.2
+    },
+    {
+      "label": "bronze",
+      "value": 26.2
     },
     {
       "label": "platinum",
-      "value": 16.7
+      "value": 17.0
     }
   ],
   "avg_email_open_rate_by_loyalty_tier": [
