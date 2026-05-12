@@ -1,23 +1,23 @@
 {
-  "updated_at": "2026-05-11 10:05 UTC",
+  "updated_at": "2026-05-12 09:16 UTC",
   "total_customers": 50000,
   "active_customers": 47500,
   "churn_rate": 0.05,
   "total_revenue": 224303622,
-  "revenue_last_30d": 1594852,
-  "revenue_last_90d": 38399621,
+  "revenue_last_30d": 988671,
+  "revenue_last_90d": 37804790,
   "avg_order_value": 250,
   "revenue_per_active_customer": 4722.2,
-  "avg_customer_value_score": 21.2,
+  "avg_customer_value_score": 20.8,
   "high_risk_customer_count": 0,
-  "avg_churn_risk_score": 29.0,
+  "avg_churn_risk_score": 29.3,
   "avg_failed_txn_rate": 0.05,
   "avg_chargeback_rate": 0.01,
   "avg_cart_abandon_rate": 0.1,
   "avg_email_open_rate": 0.333,
   "avg_email_click_rate": 0.167,
   "avg_personalization_score": 80.5,
-  "avg_recency_days": 110.2,
+  "avg_recency_days": 111.2,
   "total_customers_by_loyalty_tier": [
     {
       "label": "bronze",
@@ -61,19 +61,19 @@
   "avg_recency_days_by_loyalty_tier": [
     {
       "label": "platinum",
-      "value": 60.9
+      "value": 61.9
     },
     {
       "label": "gold",
-      "value": 61.5
+      "value": 62.5
     },
     {
       "label": "silver",
-      "value": 122.2
+      "value": 123.1
     },
     {
       "label": "bronze",
-      "value": 122.6
+      "value": 123.5
     }
   ],
   "total_revenue_by_loyalty_tier": [
@@ -97,23 +97,23 @@
   "revenue_last_30d_by_age_band": [
     {
       "label": "Boomer+ (55+)",
-      "value": 225169.0
+      "value": 147269.0
     },
     {
       "label": "Gen X (45-54)",
-      "value": 356849.0
+      "value": 215870.0
     },
     {
       "label": "Gen Z (18-24)",
-      "value": 231577.0
+      "value": 136392.0
     },
     {
       "label": "Millennial (25-34)",
-      "value": 390164.0
+      "value": 240923.0
     },
     {
       "label": "Xennial (35-44)",
-      "value": 391092.0
+      "value": 248217.0
     }
   ],
   "avg_order_value_by_loyalty_tier": [
@@ -122,11 +122,11 @@
       "value": 255.0
     },
     {
-      "label": "bronze",
+      "label": "silver",
       "value": 250.0
     },
     {
-      "label": "silver",
+      "label": "bronze",
       "value": 250.0
     },
     {
@@ -136,11 +136,11 @@
   ],
   "churn_rate_by_acquisition_channel": [
     {
-      "label": "referral",
+      "label": "email",
       "value": 0.1
     },
     {
-      "label": "email",
+      "label": "referral",
       "value": 0.1
     },
     {
@@ -148,7 +148,7 @@
       "value": 0.1
     },
     {
-      "label": "social",
+      "label": "paid_search",
       "value": 0.0
     },
     {
@@ -156,7 +156,7 @@
       "value": 0.0
     },
     {
-      "label": "paid_search",
+      "label": "social",
       "value": 0.0
     }
   ],
@@ -164,19 +164,19 @@
   "avg_churn_risk_score_by_loyalty_tier": [
     {
       "label": "gold",
-      "value": 34.5
+      "value": 34.8
     },
     {
       "label": "bronze",
-      "value": 29.4
+      "value": 29.7
     },
     {
       "label": "silver",
-      "value": 29.3
+      "value": 29.6
     },
     {
       "label": "platinum",
-      "value": 20.6
+      "value": 20.9
     }
   ],
   "avg_email_open_rate_by_loyalty_tier": [
