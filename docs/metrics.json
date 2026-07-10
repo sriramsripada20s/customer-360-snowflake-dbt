@@ -1,23 +1,23 @@
 {
-  "updated_at": "2026-07-09 10:03 UTC",
+  "updated_at": "2026-07-10 09:57 UTC",
   "total_customers": 50000,
   "active_customers": 47500,
   "churn_rate": 0.05,
   "total_revenue": 224303622,
   "revenue_last_30d": 0,
-  "revenue_last_90d": 2227676,
+  "revenue_last_90d": 1594852,
   "avg_order_value": 250,
   "revenue_per_active_customer": 4722.2,
-  "avg_customer_value_score": 7.2,
+  "avg_customer_value_score": 6.9,
   "high_risk_customer_count": 0,
-  "avg_churn_risk_score": 44.2,
+  "avg_churn_risk_score": 44.6,
   "avg_failed_txn_rate": 0.05,
   "avg_chargeback_rate": 0.01,
   "avg_cart_abandon_rate": 0.1,
   "avg_email_open_rate": 0.333,
   "avg_email_click_rate": 0.167,
   "avg_personalization_score": 80.5,
-  "avg_recency_days": 166.3,
+  "avg_recency_days": 167.2,
   "total_customers_by_loyalty_tier": [
     {
       "label": "bronze",
@@ -61,19 +61,19 @@
   "avg_recency_days_by_loyalty_tier": [
     {
       "label": "platinum",
-      "value": 119.9
+      "value": 120.9
     },
     {
       "label": "gold",
-      "value": 120.5
+      "value": 121.5
     },
     {
       "label": "silver",
-      "value": 177.5
+      "value": 178.4
     },
     {
       "label": "bronze",
-      "value": 177.9
+      "value": 178.8
     }
   ],
   "total_revenue_by_loyalty_tier": [
@@ -122,11 +122,11 @@
       "value": 255.0
     },
     {
-      "label": "silver",
+      "label": "bronze",
       "value": 250.0
     },
     {
-      "label": "bronze",
+      "label": "silver",
       "value": 250.0
     },
     {
@@ -136,11 +136,11 @@
   ],
   "churn_rate_by_acquisition_channel": [
     {
-      "label": "organic",
+      "label": "email",
       "value": 0.1
     },
     {
-      "label": "email",
+      "label": "organic",
       "value": 0.1
     },
     {
@@ -152,11 +152,11 @@
       "value": 0.0
     },
     {
-      "label": "direct",
+      "label": "social",
       "value": 0.0
     },
     {
-      "label": "social",
+      "label": "direct",
       "value": 0.0
     }
   ],
@@ -164,19 +164,19 @@
   "avg_churn_risk_score_by_loyalty_tier": [
     {
       "label": "gold",
-      "value": 50.8
+      "value": 51.3
     },
     {
       "label": "bronze",
-      "value": 44.3
+      "value": 44.7
     },
     {
       "label": "silver",
-      "value": 44.2
+      "value": 44.6
     },
     {
       "label": "platinum",
-      "value": 37.0
+      "value": 37.5
     }
   ],
   "avg_email_open_rate_by_loyalty_tier": [
