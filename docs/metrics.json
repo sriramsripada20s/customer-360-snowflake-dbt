@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-13 09:51 UTC",
+  "updated_at": "2026-07-14 08:33 UTC",
   "total_customers": 50000,
   "active_customers": 47500,
   "churn_rate": 0.05,
@@ -122,11 +122,11 @@
       "value": 255.0
     },
     {
-      "label": "silver",
+      "label": "bronze",
       "value": 250.0
     },
     {
-      "label": "bronze",
+      "label": "silver",
       "value": 250.0
     },
     {
@@ -136,6 +136,10 @@
   ],
   "churn_rate_by_acquisition_channel": [
     {
+      "label": "organic",
+      "value": 0.1
+    },
+    {
       "label": "email",
       "value": 0.1
     },
@@ -144,15 +148,11 @@
       "value": 0.1
     },
     {
-      "label": "organic",
-      "value": 0.1
-    },
-    {
-      "label": "social",
+      "label": "paid_search",
       "value": 0.0
     },
     {
-      "label": "paid_search",
+      "label": "social",
       "value": 0.0
     },
     {
@@ -185,11 +185,11 @@
       "value": 0.375
     },
     {
-      "label": "platinum",
+      "label": "gold",
       "value": 0.333
     },
     {
-      "label": "gold",
+      "label": "platinum",
       "value": 0.333
     },
     {
